@@ -7,9 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E11F2281A39E1BF00D46103 /* kernel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBAC1C51A2DD88C00A1AA56 /* kernel.swift */; };
+		4E4D0E821A39434200D79A41 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E4D0E811A39434200D79A41 /* main.swift */; };
+		4E87F9B11A3B24E00022B744 /* system.forth in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4E9908411A3A1801009507B4 /* system.forth */; };
+		4E99083E1A3A167D009507B4 /* suwaneeforth in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4E4D0E7F1A39434200D79A41 /* suwaneeforth */; };
+		4E9908421A3A1801009507B4 /* system.forth in Sources */ = {isa = PBXBuildFile; fileRef = 4E9908411A3A1801009507B4 /* system.forth */; };
+		4E9908431A3A1801009507B4 /* system.forth in Sources */ = {isa = PBXBuildFile; fileRef = 4E9908411A3A1801009507B4 /* system.forth */; };
 		4EBAC1AF1A2DD85B00A1AA56 /* forth.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EBAC1AE1A2DD85B00A1AA56 /* forth.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4EBAC1B51A2DD85B00A1AA56 /* forth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EBAC1A91A2DD85B00A1AA56 /* forth.framework */; };
 		4EBAC1BC1A2DD85B00A1AA56 /* forthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBAC1BB1A2DD85B00A1AA56 /* forthTests.swift */; };
+		4EBAC1C61A2DD88C00A1AA56 /* kernel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBAC1C51A2DD88C00A1AA56 /* kernel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -22,16 +29,43 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		4E4D0E7D1A39434200D79A41 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "$(SRCROOT)/build";
+			dstSubfolderSpec = 0;
+			files = (
+				4E87F9B11A3B24E00022B744 /* system.forth in CopyFiles */,
+				4E99083E1A3A167D009507B4 /* suwaneeforth in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		4E4D0E7F1A39434200D79A41 /* suwaneeforth */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = suwaneeforth; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E4D0E811A39434200D79A41 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		4E9908411A3A1801009507B4 /* system.forth */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; indentWidth = 8; path = system.forth; sourceTree = "<group>"; usesTabs = 1; };
+		4E9908441A3A18A4009507B4 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4EBAC1A91A2DD85B00A1AA56 /* forth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = forth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EBAC1AD1A2DD85B00A1AA56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EBAC1AE1A2DD85B00A1AA56 /* forth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = forth.h; sourceTree = "<group>"; };
 		4EBAC1B41A2DD85B00A1AA56 /* forthTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = forthTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EBAC1BA1A2DD85B00A1AA56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EBAC1BB1A2DD85B00A1AA56 /* forthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = forthTests.swift; sourceTree = "<group>"; };
+		4EBAC1C51A2DD88C00A1AA56 /* kernel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = kernel.swift; sourceTree = "<group>"; };
+		4EE165391A2F587100DEA720 /* jonesforth */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jonesforth; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4E4D0E7C1A39434200D79A41 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4EBAC1A51A2DD85B00A1AA56 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -50,11 +84,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4E4D0E801A39434200D79A41 /* suwaneeforth */ = {
+			isa = PBXGroup;
+			children = (
+				4E4D0E811A39434200D79A41 /* main.swift */,
+			);
+			path = suwaneeforth;
+			sourceTree = "<group>";
+		};
 		4EBAC19F1A2DD85B00A1AA56 = {
 			isa = PBXGroup;
 			children = (
+				4E9908441A3A18A4009507B4 /* README.md */,
+				4EE165391A2F587100DEA720 /* jonesforth */,
 				4EBAC1AB1A2DD85B00A1AA56 /* forth */,
 				4EBAC1B81A2DD85B00A1AA56 /* forthTests */,
+				4E4D0E801A39434200D79A41 /* suwaneeforth */,
 				4EBAC1AA1A2DD85B00A1AA56 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,6 +109,7 @@
 			children = (
 				4EBAC1A91A2DD85B00A1AA56 /* forth.framework */,
 				4EBAC1B41A2DD85B00A1AA56 /* forthTests.xctest */,
+				4E4D0E7F1A39434200D79A41 /* suwaneeforth */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,7 +118,9 @@
 			isa = PBXGroup;
 			children = (
 				4EBAC1AE1A2DD85B00A1AA56 /* forth.h */,
+				4EBAC1C51A2DD88C00A1AA56 /* kernel.swift */,
 				4EBAC1AC1A2DD85B00A1AA56 /* Supporting Files */,
+				4E9908411A3A1801009507B4 /* system.forth */,
 			);
 			path = forth;
 			sourceTree = "<group>";
@@ -116,6 +164,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		4E4D0E7E1A39434200D79A41 /* suwaneeforth */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E4D0E851A39434200D79A41 /* Build configuration list for PBXNativeTarget "suwaneeforth" */;
+			buildPhases = (
+				4E4D0E7B1A39434200D79A41 /* Sources */,
+				4E4D0E7C1A39434200D79A41 /* Frameworks */,
+				4E4D0E7D1A39434200D79A41 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = suwaneeforth;
+			productName = suwaneeforth;
+			productReference = 4E4D0E7F1A39434200D79A41 /* suwaneeforth */;
+			productType = "com.apple.product-type.tool";
+		};
 		4EBAC1A81A2DD85B00A1AA56 /* forth */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4EBAC1BF1A2DD85B00A1AA56 /* Build configuration list for PBXNativeTarget "forth" */;
@@ -161,6 +226,9 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "Kristopher Johnson";
 				TargetAttributes = {
+					4E4D0E7E1A39434200D79A41 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
 					4EBAC1A81A2DD85B00A1AA56 = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -183,6 +251,7 @@
 			targets = (
 				4EBAC1A81A2DD85B00A1AA56 /* forth */,
 				4EBAC1B31A2DD85B00A1AA56 /* forthTests */,
+				4E4D0E7E1A39434200D79A41 /* suwaneeforth */,
 			);
 		};
 /* End PBXProject section */
@@ -205,10 +274,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4E4D0E7B1A39434200D79A41 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E9908431A3A1801009507B4 /* system.forth in Sources */,
+				4E4D0E821A39434200D79A41 /* main.swift in Sources */,
+				4E11F2281A39E1BF00D46103 /* kernel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4EBAC1A41A2DD85B00A1AA56 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4EBAC1C61A2DD88C00A1AA56 /* kernel.swift in Sources */,
+				4E9908421A3A1801009507B4 /* system.forth in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -231,6 +312,28 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		4E4D0E831A39434200D79A41 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4E4D0E841A39434200D79A41 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		4EBAC1BD1A2DD85B00A1AA56 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -315,6 +418,7 @@
 		4EBAC1C01A2DD85B00A1AA56 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -326,12 +430,14 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		4EBAC1C11A2DD85B00A1AA56 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -381,6 +487,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4E4D0E851A39434200D79A41 /* Build configuration list for PBXNativeTarget "suwaneeforth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E4D0E831A39434200D79A41 /* Debug */,
+				4E4D0E841A39434200D79A41 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4EBAC1A31A2DD85B00A1AA56 /* Build configuration list for PBXProject "forth" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -397,6 +512,7 @@
 				4EBAC1C11A2DD85B00A1AA56 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4EBAC1C21A2DD85B00A1AA56 /* Build configuration list for PBXNativeTarget "forthTests" */ = {
 			isa = XCConfigurationList;
@@ -405,6 +521,7 @@
 				4EBAC1C41A2DD85B00A1AA56 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

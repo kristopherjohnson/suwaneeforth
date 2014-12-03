@@ -1,11 +1,3 @@
-//
-//  forth.h
-//  forth
-//
-//  Created by Kristopher Johnson on 12/2/14.
-//  Copyright (c) 2014 Kristopher Johnson. All rights reserved.
-//
-
 #import <Cocoa/Cocoa.h>
 
 //! Project version number for forth.
