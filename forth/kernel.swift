@@ -194,7 +194,7 @@ public class ForthMachine {
         /// The maximum valid value is Int32.max.
         public var dictionaryCharCount: Int = 64 * 1024
 
-        /// Number of cells reserved for the return stack; defaults to 4K
+        /// Number of bytes reserved for the return stack; defaults to 4K
         ///
         /// The maximum valid value is Int32.max
         public var returnStackCharCount: Int = 4 * 1024
@@ -785,13 +785,7 @@ public class ForthMachine {
 
     /// Determine whether a given address is aligned on a cell boundary
     final func isCellAlignedAddress(address: FAddress) -> Bool {
-        let alignment = address % FCharsPerCell
-        if alignment == 0 {
-            return true
-        }
-        else {
-            return false
-        }
+        return (address % FCharsPerCell) == 0
     }
 
     /// Cell-align the address contained in the HERE variable
@@ -856,7 +850,7 @@ public class ForthMachine {
     /// Creates a dictionary header with DOCOL as the codeword, then
     /// appends the code field addresses of the specified words.
     ///
-    /// In general, the final primitive in the definition will be .EXIT
+    /// In general, the final word in the definition should be "EXIT".
     func defword(name: String, _ words: [String], flags: FCell = 0) {
         defcode(name, .DOCOL, flags: flags)
         defwordContinue(words)
@@ -909,9 +903,7 @@ public class ForthMachine {
     /// Low-level I/O function that writes a byte to output stream
     final func writeChar(c: FCell) {
         putchar(c)
-        if c == Char_Newline {
-            fflush(stdout)
-        }
+        fflush(stdout)
     }
 
     /// Low-level I/O function that writes a byte to output stream
@@ -1447,7 +1439,7 @@ public class ForthMachine {
         defword(">DFA", [
             ">CFA", "4+",
             "EXIT"
-            ])
+        ])
 
         defword("HIDE", [
             "WORD", "FIND", "HIDDEN",
@@ -1566,14 +1558,12 @@ public class ForthMachine {
 
     /// Get the address of the code field (CFA) for the dictionary entry that starts at the specified address
     public final func lengthAndFlagsFieldAddressForEntryAtAddress(entryAddress: FAddress) -> FAddress {
-        let lengthAddress = entryAddress + FCharsPerCell
-        return lengthAddress
+        return entryAddress + FCharsPerCell
     }
 
     /// Get the address of the code field (CFA) for the dictionary entry that starts at the specified address
     public final func nameFieldAddressForEntryAtAddress(entryAddress: FAddress) -> FAddress {
-        let nameAddress = lengthAndFlagsFieldAddressForEntryAtAddress(entryAddress) + 1
-        return nameAddress
+        return lengthAndFlagsFieldAddressForEntryAtAddress(entryAddress) + 1
     }
 
     /// Get the address of the code field (CFA) for the dictionary entry that starts at the specified address
@@ -1709,7 +1699,7 @@ public class ForthMachine {
     /// + ( n1|u1 n2|u2 -- n3|u3 )
     public final func ADD() {
         let (n1, n2) = pop2()
-        push(n1 &+ n2)
+        (n1 &+ n2) |> push
     }
 
     /// Subtract the top-of-stack value from the next stack value, giving the difference
@@ -1954,7 +1944,7 @@ public class ForthMachine {
 
     /// Give address of cell containing the data-space pointer
     ///
-    /// Note: This differs from ANS FORTH, where HERE returns the data-space pointer itself.
+    /// Note: This differs from ANS FORTH, where HERE returns the data-space pointer value.
     ///
     /// HERE ( -- a-addr )
     public final func HERE() {
@@ -2094,7 +2084,6 @@ public class ForthMachine {
     /// EMIT ( x -- )
     public final func EMIT() {
         pop() |> writeChar
-        fflush(stdout)
     }
 
     /// Read the next full word of input, giving address and length
@@ -2126,16 +2115,14 @@ public class ForthMachine {
     ///
     /// FIND ( c-addr u -- a-addr|0 )
     public final func FIND() {
-        let (addr, length) = pop2()
-        (FAddress(addr), Int(length)) |> find |> asCell |> push
+        pop2() |> asAddressAndCount |> find |> asCell |> push
     }
 
     /// Given pointer to dictionary entry, give the address of the code field
     ///
     /// >CFA ( a-addr -- a-addr )
     public final func TCFA() {
-        let entryAddress = FAddress(pop())
-        codeFieldAddressForEntryAtAddress(entryAddress) |> asCell |> push
+        pop() |> asAddress |> codeFieldAddressForEntryAtAddress |> asCell |> push
     }
 
     /// Given a name, create a new dictionary entry header
@@ -2206,8 +2193,8 @@ public class ForthMachine {
     ///
     /// BRANCH ( -- )
     public final func BRANCH() {
-        let offset = cellAtAddress(ip)
-        ip = ip + Int(offset)
+        let offset = cellAtAddress(ip) |> asAddress
+        ip += offset
     }
 
     /// Branch if top of stack is zero
@@ -2238,13 +2225,14 @@ public class ForthMachine {
 
     /// Write characters to the output stream
     ///
-    /// TELL( c-addr u -- )
+    /// Note that this word is named "TYPE" in ANS Forth
+    ///
+    /// TELL ( c-addr u -- )
     public final func TELL() {
         let (addr, length) = pop2() |> asAddressAndCount
         for i in 0..<length {
             charAtAddress(addr + i) |> writeChar
         }
-        fflush(stdout)
     }
 
     /// Empty return stack, enter interpretation state, and process input
@@ -2277,7 +2265,7 @@ public class ForthMachine {
 
         FIND()
 
-        let entryAddress = FAddress(pop())
+        let entryAddress = pop() |> asAddress
 
         if entryAddress != 0 {
             // In the dictionary. Is it an IMMEDIATE codeword?
