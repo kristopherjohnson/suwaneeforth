@@ -950,7 +950,7 @@ public class ForthMachine {
 
     /// Send the specified message to the error stream and exit the program
     public func abortWithMessage(message: String) {
-        fputs("ForthMachine abort: \(message)\n", stderr)
+        fputs("abort: \(message)\n", stderr)
         abort()
     }
 
@@ -1205,6 +1205,9 @@ public class ForthMachine {
         case INTERPRET
         case CHAR
         case EXECUTE
+
+        case BYE
+        case UNUSED
     }
 
     /// Run the code at the specified code field address
@@ -1325,6 +1328,9 @@ public class ForthMachine {
             case .INTERPRET:    INTERPRET()
             case .CHAR:         CHAR()
             case .EXECUTE:      EXECUTE()
+
+            case .BYE:          BYE()
+            case .UNUSED:       UNUSED()
             }
         }
         else {
@@ -1431,6 +1437,9 @@ public class ForthMachine {
         defcode("INTERPRET",  .INTERPRET)
         defcode("CHAR",       .CHAR)
         defcode("EXECUTE",    .EXECUTE)
+
+        defcode("BYE",        .BYE)
+        defcode("UNUSED",     .UNUSED)
 
         defword(":", [
             "WORD",
@@ -2345,6 +2354,19 @@ public class ForthMachine {
         pop() |> asAddress |> executeCodeFieldAddress
     }
 
+    /// Exit the process
+    /// 
+    /// BYE ( -- )
+    public func BYE() {
+        exit(EXIT_SUCCESS)
+    }
+
+    /// Give number of unused cells.
+    /// 
+    /// UNUSED ( -- u )
+    public func UNUSED() {
+        (dictionary.count - here.valueAsAddress) / FCharsPerCell |> asCell |> push
+    }
 
     // MARK: - Diagnostics
 

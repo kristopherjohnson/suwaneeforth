@@ -47,12 +47,23 @@ An additional subdirectory, `build/`, will be created when the `suwaneeforth` ex
 
 ## Building SuwaneeForth
 
+To build the command-line application from the command line, enter these commands:
+
+    cd suwaneeforth
+    xcodebuild -target suwaneeforth
+
+The suwaneeforth executable will appear in the build/ subdirectory.
+
+To build the command-line application from within Xcode, do the following: 
+
 1. Open Xcode
 2. Open `forth.xcworkspace`
 3. Select the `suwaneeforth` scheme if it is not already selected
 4. Choose the menu item *Product > Build For > Running*
 5. If all goes well, the `suwaneeforth` executable and the file `system.forth` will be copied to the `build` directory in your workspace directory.
 
+
+Note that the Xcode scheme builds the Debug configuration, which is very slow in comparison to the Release configuration.
 
 ## Running SuwaneeForth
 
