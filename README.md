@@ -29,7 +29,7 @@ Alternatively, you can run these commands:
     git submodule init
     git submodule update
 
-Note that the JONESFORTH source code is not required for building and running SuwaneeForth, so you could ignore it, but it is very useful to have that code as a documentation reference and it is also useful to use the JONESFORTH unit test data to test SuwaneeForth.
+Note that the JONESFORTH source code is not required for building and running SuwaneeForth, so you could ignore it, but it is very useful to have that code as a documentation reference and it is also useful to have the JONESFORTH unit test data to test SuwaneeForth.
 
 
 ## Description of Contents

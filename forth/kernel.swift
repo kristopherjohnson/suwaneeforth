@@ -189,15 +189,10 @@ public class ForthMachine {
 
     /// Options passed to ForthMachine constructor
     public struct Options {
-        /// Number of bytes reserved for the FORTH dictionary; defaults to 64 Kbytes
+        /// Number of bytes reserved for the FORTH dictionary and stack; defaults to 64 Kbytes
         ///
         /// The maximum valid value is Int32.max.
         public var dictionaryCharCount: Int = 64 * 1024
-
-        /// Number of cells reserved for the data stack; defaults to 4K
-        ///
-        /// The maximum valid value is Int32.max.
-        public var dataStackCharCount: Int = 4 * 1024
 
         /// Number of cells reserved for the return stack; defaults to 4K
         ///
