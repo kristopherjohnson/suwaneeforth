@@ -7,9 +7,13 @@ by Kristopher Johnson
 
 SuwaneeForth is an implementation of a [Forth](http://en.wikipedia.org/wiki/Forth_(programming_language)) interpreter, written in [Swift](https://developer.apple.com/swift/) for OS X.  With a little more work, it could probably run on iOS as well.
 
-SuwaneeForth is a translation/port of the system described in "A sometimes minimal FORTH compiler and tutorial for Linux / i386 systems" (a.k.a. "[JONESFORTH](http://rwmj.wordpress.com/2010/08/07/jonesforth-git-repository/)") by Richard W.M. Jones.  Refer to the JONESFORTH source code for details of the memory layouts and execution mechanisms used by SuwaneeForth.  Like JONESFORTH, SuwaneeForth is not compliant with the [ANS Forth standard](http://forth.sourceforge.net/std/dpans/).  Also like JONESFORTH, SuwaneeForth is released into the public domain.
+SuwaneeForth is a translation/port of the system described in "A sometimes minimal FORTH compiler and tutorial for Linux/i386 systems" (a.k.a. "[JONESFORTH](http://rwmj.wordpress.com/2010/08/07/jonesforth-git-repository/)") by Richard W.M. Jones.  Refer to the JONESFORTH source code for details of the memory layouts and execution mechanisms used by SuwaneeForth.
 
-SuwaneeForth is only intended to be useful as an educational toy.  If you want to use an open-source Forth for serious software development for OS X or iOS, it is recommended that you start with [pForth](http://www.softsynth.com/pforth/), [GForth](https://www.gnu.org/software/gforth/), or another mature Forth implementation.
+Like JONESFORTH, SuwaneeForth is not compliant with the [ANS Forth standard](http://forth.sourceforge.net/std/dpans/).
+
+Like JONESFORTH, SuwaneeForth's source code is released into the public domain.
+
+SuwaneeForth is only intended to be useful as an educational toy.  If you want to use an open-source Forth for serious software development, it is recommended that you start with [pForth](http://www.softsynth.com/pforth/), [GForth](https://www.gnu.org/software/gforth/), or another mature Forth implementation.
 
 _Suwanee_ is the name of the city where the author lives.
 
@@ -112,6 +116,14 @@ SuwaneeForth does not support these words that are included in JONESFORTH:
 
 
 ## Random Disorganized Thoughts from Kris
+
+> FORTH is one of those alien languages which most working programmers regard in the same
+    way as Haskell, LISP, and so on.  Something so strange that they'd rather any thoughts
+    of it just go away so they can get on with writing this paying code.  But that's wrong
+    and if you care at all about programming then you should at least understand all these
+    languages, even if you will never use them.
+
+That's the first paragraph of `jonesforth.S`, and I heartily agree with it.
 
 Implementing a low-level language in a high-level language is a strange thing to do.  It's not a very productive use of time, but it can be interesting and educational.
 
