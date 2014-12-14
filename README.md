@@ -117,13 +117,13 @@ Implementing a low-level language in a high-level language is a strange thing to
 
 I've used Forth before, especially [Quartus Forth](http://www.quartus.net/products/forth/) (now defunct) for [Palm OS](http://en.wikipedia.org/wiki/Palm_OS) (also defunct), but have never implemented my own.  I can't take credit for this implementation, as Mr. Jones did all the hard work in JONESFORTH, but I have a much better understanding of how the internals of a Forth implementation work.
 
-The implementation turned out to be more complicated than I expected. There are more lines of code in my kernel than in the JONESFORTH kernel, which seems strange for a high-level language implementation.  Some of this expansion may be due to my tendency toward over-abstraction, but I think a lot of it is due to the need to implement my own virtual machine rather than writing x86 code to be executed directly by the CPU.  Rewriting this in a minimalistic style might be an interesting exercise.
+The implementation turned out to be more complicated than I expected. There are more lines of code in my kernel than in the JONESFORTH kernel, which seems strange for a high-level language implementation.  Some of this expansion may be due to my tendency toward over-abstraction, but a lot of it is due to the need to implement a virtual machine rather than just writing x86 code to be executed directly by the CPU.
 
-One struggle I had was figuring out how to implement control flow in the inner interpreter.  In JONESFORTH, this is implemented by having each primitive assembly-language operation end with a _jump-to-the-next-instruction_ macro, but we can't easily implement a `jump-to-next-instruction` function/method in Swift because there is no `goto` and tail-call optimizations are not guaranteed.  In SuwaneeForth, control flow is implemented by INTERPRET, DOCOL, and EXIT, and it works, but it doesn't feel right.  I may revisit this.  Maybe I could implement a `goto`-like mechanism with `setjmp`/`longjmp`?
+It's disappointing that the `suwaneeforth` executable is over 4 megabytes in size.  In contrast, `jonesforth` is around 13 kilobytes.  But a "Hello, world!" application in Swift is 3.8 megabytes, so I don't think there is much I can do to reduce the size of the executable.
 
-To make Forth _useful_ for OS X and iOS development, one would want some kind of generic bridge to Objective-C.  I have no idea how to do that, nor interest in implementing such a thing.
+One struggle I had was figuring out how to implement control flow in the inner interpreter.  In JONESFORTH, this is implemented by having each primitive assembly-language operation end with a _jump-to-the-next-instruction_ macro, but we can't easily implement the same thing in Swift because there is no macro facility, no `goto`, and tail-call optimizations are not guaranteed.  In SuwaneeForth, control flow is implemented by INTERPRET, DOCOL, and EXIT, and it works, but it doesn't feel right.  I may revisit this.  Maybe I could implement a `goto`-like mechanism with `setjmp`/`longjmp`?
 
-As of now, the interpreter uses C standard library calls like `getc`, `putc`, `exit`, and `abort` to handle I/O and process termination.  To make the `ForthMachine` useful as an embedded interpreter within an application, there should be some sort of delegate to handle the interface to the host process.  Maybe something like this:
+As of now, the interpreter uses C standard library calls like `getchar`, `putchar`, `exit`, and `abort` to handle I/O and process termination.  To make the `ForthMachine` useful as an embedded interpreter within an application, there should be some sort of delegate to handle the interface to the host process.  Maybe something like this:
 
     protocol ForthMachineHost {
         // Get next input character, or return EOF on end of input
@@ -170,3 +170,5 @@ It would be nice to be able to define primitives with a syntax like this (instea
     }
 
 I considered doing this in SuwaneeForth, but making each primitive a full-fledged Swift method made debugging and testing easier.
+
+To make Forth useful for OS X and iOS development, one would want some kind of generic bridge to Objective-C.  I have no idea how to do that, nor any interest in implementing it.
