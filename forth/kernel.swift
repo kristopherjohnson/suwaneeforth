@@ -104,25 +104,25 @@ let FFalse: FCell = 0
 
 
 /// ASCII code for space character
-let Char_Blank = Int(UnicodeScalar(" ").value)
+let Char_Blank = FCell(UnicodeScalar(" ").value)
 
 /// ASCII code for linefeed character ("\n")
-let Char_Newline = Int(UnicodeScalar("\n").value)
+let Char_Newline = FCell(UnicodeScalar("\n").value)
 
 /// ASCII code for backslash character ("\")
-let Char_Backslash = Int(UnicodeScalar("\\").value)
+let Char_Backslash = FCell(UnicodeScalar("\\").value)
 
 /// ASCII code for minus character ("-")
-let Char_Minus = Int(UnicodeScalar("-").value)
+let Char_Minus = FCell(UnicodeScalar("-").value)
 
 /// ASCII code for zero character ("0")
-let Char_0 = Int(UnicodeScalar("0").value)
+let Char_0 = FCell(UnicodeScalar("0").value)
 
 /// ASCII code for nine character ("9")
-let Char_9 = Int(UnicodeScalar("9").value)
+let Char_9 = FCell(UnicodeScalar("9").value)
 
 /// ASCII code for capital A ("A")
-let Char_A = Int(UnicodeScalar("A").value)
+let Char_A = FCell(UnicodeScalar("A").value)
 
 
 // MARK: - ForthMachine
@@ -264,27 +264,25 @@ public class ForthMachine {
 
     // MARK: - Virtual machine data regions and registers
 
-    /// Memory for definitions and data space
+    /// Memory for definitions and data space, and the stack
     ///
     /// A "data space address" is an index into this array.
-    var dictionary: [FChar]
-
-    /// Data stack
-    var stack: [FChar]
+    var dataSpace: [FChar]
 
     /// Data stack pointer (`%esp` in jonesforth.S)
     ///
-    /// This is an index into `stack`. The stack grows downward.
-    /// The initial value is equal to `stack.count`. To push a value
+    /// This is an index into `dataSpace`. The stack starts at the
+    /// top of the data-space region and grows downward.
+    /// The initial value is equal to `dataSpace.count`. To push a value
     /// onto the stack, the value of `sp` is decremented and the pushed
-    /// value is stored at `stack[sp]`.  To pop a value, `sp` is
+    /// value is stored at `dataSpace[sp]`.  To pop a value, `sp` is
     /// incremented.
     ///
     /// It is guaranteed that the value will always be in the range
-    /// 0...stack.count. Any attempt to set it outside this range
+    /// 0...dataSpace.count. Any attempt to set it outside this range
     /// will cause the program to abort.
     ///
-    /// Note that `stack.count` is considered to be a valid value
+    /// Note that `dataSpace.count` is considered to be a valid value
     /// for `sp`, indicating an empty stack, but attempting to access
     /// `stack[stack.count]` is not a valid operation.
     var sp: FAddress {
@@ -292,7 +290,7 @@ public class ForthMachine {
             if newValue < 0 {
                 onStackOverflow()
             }
-            else if newValue > stack.count {
+            else if newValue > dataSpace.count {
                 onStackUnderflow()
             }
         }
@@ -300,7 +298,7 @@ public class ForthMachine {
 
     /// The number of cells currently on the data stack
     public var stackCellDepth: Int {
-        return (stack.count - sp) / FCharsPerCell
+        return (dataSpace.count - sp) / FCharsPerCell
     }
 
     /// Return stack
@@ -350,7 +348,7 @@ public class ForthMachine {
             if newValue < 0 {
                 onInstructionPointerUnderflow()
             }
-            else if newValue > dictionary.count {
+            else if newValue > dataSpace.count {
                 onInstructionPointerOverflow()
             }
             else if !isCellAlignedAddress(newValue) {
@@ -382,7 +380,7 @@ public class ForthMachine {
         machine: self,
         address: 8,
         size: FCharsPerCell,
-        initialValue: 0)
+        initialValue: self.dataSpace.count |> asCell)
 
     /// FORTH variable "STATE" indicating whether interpreter is executing (false) or compiling (true)
     lazy var state: BuiltInVariable = BuiltInVariable(
@@ -428,14 +426,11 @@ public class ForthMachine {
 
         self.isTraceEnabled = options.isTraceEnabled
 
-        self.dictionary = Array(
+        self.dataSpace = Array(
             count:         options.dictionaryCharCount,
             repeatedValue: 0)
 
-        self.stack = Array(
-            count:         options.dataStackCharCount,
-            repeatedValue: 0)
-        self.sp = self.stack.count
+        self.sp = self.dataSpace.count
 
         self.returnStack = Array(
             count:         options.returnStackCharCount,
@@ -456,22 +451,12 @@ public class ForthMachine {
 
     // MARK: - Stack manipulation
 
-    /// Return a pointer to the byte at a specified stack address
-    final func immutablePointerForStackAddress(address: FAddress) -> UnsafePointer<FChar> {
-        return UnsafePointer<FChar>(stack) + address
-    }
-
-    /// Return a pointer to the byte at a specified stack address
-    final func mutablePointerForStackAddress(address: FAddress) -> UnsafeMutablePointer<FChar> {
-        return UnsafeMutablePointer<FChar>(stack) + address
-    }
-    
     /// Push a cell value onto the data stack
     public final func push(x: FCell) {
         assert(sp % FCharsPerCell == 0, "stack pointer must be cell-aligned for push")
 
         sp -= FCharsPerCell
-        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForStackAddress(sp))
+        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = x
     }
 
@@ -487,7 +472,7 @@ public class ForthMachine {
         assert(sp % FCharsPerCell == 0, "stack pointer must be cell-aligned for pick")
 
         let address = sp + (depth * FCharsPerCell)
-        let pointer = UnsafePointer<FCell>(immutablePointerForStackAddress(address))
+        let pointer = UnsafePointer<FCell>(immutablePointerForDataAddress(address))
         return pointer.memory
     }
 
@@ -643,12 +628,12 @@ public class ForthMachine {
 
     /// Return a pointer to the byte at a specified data-space address
     final func immutablePointerForDataAddress(address: FAddress) -> UnsafePointer<FChar> {
-        return UnsafePointer<FChar>(dictionary) + address
+        return UnsafePointer<FChar>(dataSpace) + address
     }
 
     /// Return a pointer to the byte at a specified data-space address
     final func mutablePointerForDataAddress(address: FAddress) -> UnsafeMutablePointer<FChar> {
-        return UnsafeMutablePointer<FChar>(dictionary) + address
+        return UnsafeMutablePointer<FChar>(dataSpace) + address
     }
 
     /// Called on attempt to read from an invalid data-space address
@@ -669,7 +654,7 @@ public class ForthMachine {
     /// space.  Applications should use the standard FORTH memory access
     /// words.
     public final func cellAtAddress(address: FAddress) -> FCell {
-        if (0 <= address) && (address < dictionary.count - FCharsPerCell) {
+        if (0 <= address) && (address <= dataSpace.count - FCharsPerCell) {
             // Reading a cell from an unaligned address will actually work fine,
             // but it is a violation of the rules and probably indicates a
             // bug somewhere.
@@ -694,7 +679,7 @@ public class ForthMachine {
     /// space.  Applications should use the standard FORTH memory access
     /// words.
     final func charAtAddress(address: FAddress) -> FChar {
-        if 0 <= address && address < dictionary.count {
+        if 0 <= address && address < dataSpace.count {
             let pointer = UnsafePointer<FChar>(immutablePointerForDataAddress(address))
             let cell = pointer.memory
             return cell
@@ -720,7 +705,7 @@ public class ForthMachine {
     }
 
     final func storeToAddress(address: FAddress, cellValue: FCell) {
-        if 0 <= address && address < (dictionary.count - 4) {
+        if 0 <= address && address <= (dataSpace.count - 4) {
             let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(address))
             pointer.memory = cellValue
         }
@@ -730,7 +715,7 @@ public class ForthMachine {
     }
 
     final func storeToAddress(address: FAddress, charValue: FChar) {
-        if 0 <= address && address < dictionary.count {
+        if 0 <= address && address < dataSpace.count {
             let pointer = UnsafeMutablePointer<FChar>(mutablePointerForDataAddress(address))
             pointer.memory = charValue
         }
@@ -916,7 +901,7 @@ public class ForthMachine {
 
     /// Low-level I/O function that reads a byte from the input stream.
     final func readChar() -> FCell {
-        return getc(stdin)
+        return getchar()
     }
 
     /// Low-level I/O function that puts a byte back on the input stream
@@ -928,7 +913,10 @@ public class ForthMachine {
 
     /// Low-level I/O function that writes a byte to output stream
     final func writeChar(c: FCell) {
-        putc(c, stdout)
+        putchar(c)
+        if c == Char_Newline {
+            fflush(stdout)
+        }
     }
 
     /// Low-level I/O function that writes a byte to output stream
@@ -971,7 +959,7 @@ public class ForthMachine {
                 }
 
                 if ch == EOF {
-                    unreadChar(ch)
+                    onWordEOF()
                 }
             }
 
@@ -1047,7 +1035,7 @@ public class ForthMachine {
         var i = 0
 
         // If it starts with "-", it's negative
-        let firstChar = Int(charAtAddress(address))
+        let firstChar = charAtAddress(address) |> asCell
         if firstChar == Char_Minus {
             isNegative = true
             ++i
@@ -1061,10 +1049,10 @@ public class ForthMachine {
         var unparseable = false
         while !unparseable && i < length {
             number = number * numericBase
-            let c = Int(charAtAddress(address + i))
+            let c = charAtAddress(address + i) |> asCell
             ++i
             if Char_0 <= c && c <= Char_9 {
-                let val = c - Char_0
+                let val = Int(c - Char_0)
                 if val < numericBase {
                     number = number &+ val
                 }
@@ -1073,7 +1061,7 @@ public class ForthMachine {
                 }
             }
             else if Char_A <= c {
-                let val = c - Char_A + 10
+                let val = Int(c - Char_A + 10)
                 if val < numericBase {
                     number = number &+ val
                 }
@@ -1693,7 +1681,7 @@ public class ForthMachine {
     ///
     /// 1+ ( n1|u1 -- n2|u2 )
     public final func INCR() {
-        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForStackAddress(sp))
+        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = pointer.memory &+ 1
     }
 
@@ -1701,7 +1689,7 @@ public class ForthMachine {
     ///
     /// 1- ( n1|u1 -- n2|u2 )
     public final func DECR() {
-        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForStackAddress(sp))
+        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = pointer.memory &- 1
     }
 
@@ -1709,7 +1697,7 @@ public class ForthMachine {
     ///
     /// 4+ ( n1|u1 -- n2|u2 )
     public final func INCR4() {
-        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForStackAddress(sp))
+        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = pointer.memory &+ 4
     }
 
@@ -1717,7 +1705,7 @@ public class ForthMachine {
     ///
     /// 4- ( n1|u1 -- n2|u2 )
     public final func DECR4() {
-        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForStackAddress(sp))
+        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = pointer.memory &- 4
     }
 
@@ -2111,6 +2099,7 @@ public class ForthMachine {
     /// EMIT ( x -- )
     public final func EMIT() {
         pop() |> writeChar
+        fflush(stdout)
     }
 
     /// Read the next full word of input, giving address and length
@@ -2260,6 +2249,7 @@ public class ForthMachine {
         for i in 0..<length {
             charAtAddress(addr + i) |> writeChar
         }
+        fflush(stdout)
     }
 
     /// Empty return stack, enter interpretation state, and process input
@@ -2365,7 +2355,7 @@ public class ForthMachine {
     /// 
     /// UNUSED ( -- u )
     public func UNUSED() {
-        (dictionary.count - here.valueAsAddress) / FCharsPerCell |> asCell |> push
+        (dataSpace.count - here.valueAsAddress) / FCharsPerCell |> asCell |> push
     }
 
     // MARK: - Diagnostics
@@ -2427,9 +2417,9 @@ public class ForthMachine {
             ip:           ip,
             sp:           sp,
             rsp:          rsp,
-            stack:        Array(stack[sp..<stack.count]),
+            stack:        Array(dataSpace[sp..<dataSpace.count]),
             returnStack:  Array(returnStack[rsp..<returnStack.count]),
-            dictionary:   Array(dictionary[0..<here.valueAsAddress]))
+            dictionary:   Array(dataSpace[0..<here.valueAsAddress]))
     }
 
     /// Structure returned by the `snapshot()` method

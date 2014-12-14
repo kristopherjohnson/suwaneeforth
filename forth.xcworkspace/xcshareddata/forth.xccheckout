@@ -10,6 +10,8 @@
 	<string>forth</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>4799F7C3FBE2CC90E03757EDD3384E1EE4E7E272</key>
+		<string>https://github.com/kristopherjohnson/suwaneeforth.git</string>
 		<key>62DF536BD5C3EB833DC463D006A42FDC93AF231B</key>
 		<string>https://github.com/kristopherjohnson/jonesforth.git</string>
 	</dict>
@@ -17,13 +19,27 @@
 	<string>forth.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>4799F7C3FBE2CC90E03757EDD3384E1EE4E7E272</key>
+		<string>..</string>
 		<key>62DF536BD5C3EB833DC463D006A42FDC93AF231B</key>
-		<string>../../forth/jonesforth</string>
+		<string>../jonesforth</string>
 	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/kristopherjohnson/suwaneeforth.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>4799F7C3FBE2CC90E03757EDD3384E1EE4E7E272</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>4799F7C3FBE2CC90E03757EDD3384E1EE4E7E272</string>
+			<key>IDESourceControlWCCName</key>
+			<string>forth</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>

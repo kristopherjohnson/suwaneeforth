@@ -25,7 +25,7 @@ The SuwaneeForth repository contains the JONESFORTH source code as a git submodu
 Alternatively, you can run these commands:
 
     git clone https://github.com/kristopherjohnson/suwaneeforth
-    cd SuwaneeForth
+    cd suwaneeforth
     git submodule init
     git submodule update
 
@@ -52,9 +52,9 @@ To build the command-line application from the command line, enter these command
     cd suwaneeforth
     xcodebuild -target suwaneeforth
 
-The suwaneeforth executable will appear in the build/ subdirectory.
+If the build succeeds, the `suwaneeforth` executable and `system.forth` will be copied to the `build/` subdirectory.
 
-To build the command-line application from within Xcode, do the following: 
+To build the command-line application from within Xcode, do the following:
 
 1. Open Xcode
 2. Open `forth.xcworkspace`
@@ -73,11 +73,11 @@ The kernel is the `suwaneeforth` executable and the additional Forth-defined wor
 
 To run a Forth program, do something like this to load multiple source files into the kernel:
 
-    cat`system.forth myprogram.fth | ./suwaneeforth
+    cat system.forth myprogram.fth | ./suwaneeforth
 
 To run the interpreter interactively, do something like this to pipe the system words and then your input into the kernel:
 
-    cat`system.forth - | ./suwaneeforth
+    cat system.forth - | ./suwaneeforth
 
 
 ## Using the forth Framework
@@ -99,6 +99,16 @@ To build and test the framework, do the following:
 Set the `isTraceEnabled` property in `ForthMachine` to true to enable debug trace message output during execution.
 
 The `ForthMachine` has several safety checks that try to prevent bad Forth code from reading/writing memory outside of the virtual machine's reserved address space.  Run with assertions enabled to enable all these checks, and run in the debugger to break when they are triggered.  Setting a breakpoint in the `abortWithMessage()` method may be helpful too.
+
+
+## Limitations
+
+SuwaneeForth does not support these words that are included in JONESFORTH:
+
+- Environment words: `ARGC`, `ARGV`, `ENVIRON`
+- File-access words: `OPEN-FILE`, `CREATE-FILE`, `CLOSE-FILE`, `READ-FILE`, `PERROR`
+- System call words: `GET-BRK`, `BRK`, `MORECORE`, `SYSCALL0`, `SYSCALL1`, `SYSCALL2`, `SYSCALL3`, and the related constants
+- Assembler words
 
 
 ## Random Disorganized Thoughts from Kris

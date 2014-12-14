@@ -13,6 +13,8 @@
 // for any purpose, without any conditions, unless such conditions are required by law.
 
 
+import Foundation
+
 // Instantiate ForthMachine and make it start interpreting input
 //
 // TODO: command-line arguments, configuration, etc.

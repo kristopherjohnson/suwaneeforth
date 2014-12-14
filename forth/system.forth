@@ -1466,59 +1466,8 @@
 ;
 
 (
-	THE ENVIRONMENT ----------------------------------------------------------------------
-
-	Linux makes the process arguments and environment available to us on the stack.
-
-	The top of stack pointer is saved by the early assembler code when we start up in the FORTH
-	variable S0, and starting at this pointer we can read out the command line arguments and the
-	environment.
-
-	Starting at S0, S0 itself points to argc (the number of command line arguments).
-
-	S0+4 points to argv[0], S0+8 points to argv[1] etc up to argv[argc-1].
-
-	argv[argc] is a NULL pointer.
-
-	After that the stack contains environment variables, a set of pointers to strings of the
-	form NAME=VALUE and on until we get to another NULL pointer.
-
-	The first word that we define, ARGC, pushes the number of command line arguments (note that
-	as with C argc, this includes the name of the command).
-)
-: ARGC
-	S0 @ @
-;
-
-(
-	n ARGV gets the nth command line argument.
-
-	For example to print the command name you would do:
-		0 ARGV TELL CR
-)
-: ARGV ( n -- str u )
-	1+ CELLS S0 @ +	( get the address of argv[n] entry )
-	@		( get the address of the string )
-	DUP STRLEN	( and get its length / turn it into a FORTH string )
-;
-
-(
-	ENVIRON returns the address of the first environment string.  The list of strings ends
-	with a NULL pointer.
-
-	For example to print the first string in the environment you could do:
-		ENVIRON @ DUP STRLEN TELL
-)
-: ENVIRON	( -- addr )
-	ARGC		( number of command line parameters on the stack to skip )
-	2 +		( skip command line count and NULL pointer after the command line args )
-	CELLS		( convert to an offset )
-	S0 @ +		( add to base stack address )
-;
-
-(
-	Note: SuwaneeForth currently does not support the file-access words or the inline assembler
-	provided with JONESFORTH.
+	Note: SuwaneeForth currently does not support the environment, file-access words,
+	or the inline assembler provided with JONESFORTH.
 )
 
 
@@ -1530,7 +1479,7 @@
 
 : WELCOME
 	S" TEST-MODE" FIND NOT IF
-		." SuwaneeForth Version " VERSION . CR
+		." SUWANEEFORTH" CR
 		UNUSED . ." CELLS REMAINING" CR
 		." OK "
 	THEN
