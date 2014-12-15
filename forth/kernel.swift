@@ -189,14 +189,14 @@ public final class ForthMachine {
 
     /// Options passed to ForthMachine constructor
     public struct Options {
-        /// Number of bytes reserved for the FORTH dictionary and stack; defaults to 64 Kbytes
+        /// Number of bytes reserved for the FORTH dictionary and stacks; defaults to 64 Kbytes
         ///
         /// The maximum valid value is Int32.max.
-        public var dictionaryCharCount: Int = 64 * 1024
+        public var dataSpaceCharCount: Int = 64 * 1024
 
         /// Number of bytes reserved for the return stack; defaults to 4K
         ///
-        /// The maximum valid value is Int32.max
+        /// The return stack region is allocated at the top of the data space.
         public var returnStackCharCount: Int = 4 * 1024
 
         /// If true, debug trace information is sent to standard output during execution
@@ -259,52 +259,53 @@ public final class ForthMachine {
 
     // MARK: - Virtual machine data regions and registers
 
-    /// Memory for definitions and data space, and the stack
+    /// Virtual machine memory
     ///
     /// A "data space address" is an index into this array.
+    ///
+    /// Data space is divided into the following regions:
+    ///
+    ///     +--------------+  <- R0
+    ///     |              |
+    ///     | RETURN STACK |  <- rsp
+    ///     |              |
+    ///     +--------------+  <- S0
+    ///     |              |
+    ///     |  DATA STACK  |
+    ///     |              |
+    ///     +--------------+  <- sp
+    ///     |              |
+    ///     |  FREE SPACE  |
+    ///     |              |
+    ///     +--------------+  <- HERE
+    ///     |              |
+    ///     |  DICTIONARY  |
+    ///     |              |
+    ///     +--------------+  0
+    ///
+    /// At the top of dataSpace is space reserved for the return stack.
+    /// R0 refers to the top of this space.  The return stack pointer (rsp)
+    /// points to the top-of-return-stack cell.
+    ///
+    /// Under the return-stack space is the data stack. S0 refers to the top
+    /// of this area (the boundary between return stack and data stack space).
+    /// The data stack grows downward.  The data stack pointer (sp) points
+    /// to the top-of-stack cell.
+    ///
+    /// The dictionary starts at the bottom of memory and grows upward.
+    /// HERE points at the current top of the dictionary space.
+    ///
+    /// Between HERE and sp is space that is not used.  As definitions are
+    /// added to the dictionary, HERE will increase and the size of this
+    /// unused space decreases.
     var dataSpace: [FChar]
-
-    /// Data stack pointer (`%esp` in jonesforth.S)
-    ///
-    /// This is an index into `dataSpace`. The stack starts at the
-    /// top of the data-space region and grows downward.
-    /// The initial value is equal to `dataSpace.count`. To push a value
-    /// onto the stack, the value of `sp` is decremented and the pushed
-    /// value is stored at `dataSpace[sp]`.  To pop a value, `sp` is
-    /// incremented.
-    ///
-    /// It is guaranteed that the value will always be in the range
-    /// 0...dataSpace.count. Any attempt to set it outside this range
-    /// will cause the program to abort.
-    ///
-    /// Note that `dataSpace.count` is considered to be a valid value
-    /// for `sp`, indicating an empty stack, but attempting to access
-    /// `stack[stack.count]` is not a valid operation.
-    var sp: FAddress {
-        willSet {
-            if newValue < 0 {
-                onStackOverflow()
-            }
-            else if newValue > dataSpace.count {
-                onStackUnderflow()
-            }
-        }
-    }
-
-    /// The number of cells currently on the data stack
-    public var stackCellDepth: Int {
-        return (dataSpace.count - sp) / FCharsPerCell
-    }
-
-    /// Return stack
-    var returnStack: [FChar]
 
     /// Return stack pointer (`%ebp` in jonesforth.S)
     ///
-    /// This is an index into `returnStack`. The stack grows downward.
-    /// The initial value is equal to `returnStack.count`. To push a value
+    /// This is an index into `dataSpace`. The stack grows downward.
+    /// The initial value is equal to `dataSpace.count`. To push a value
     /// onto the stack, the value of `rsp` is decremented and the pushed
-    /// value is stored at `returnStack[rsp]`.  To pop a value, `rsp` is
+    /// value is stored at `dataSpace[rsp]`.  To pop a value, `rsp` is
     /// incremented.
     ///
     /// It is guaranteed that the value will always be in the range
@@ -316,10 +317,10 @@ public final class ForthMachine {
     /// `returnStack.count[returnStack.count]` is not a valid operation.
     var rsp: FAddress {
         willSet {
-            if newValue < 0 {
+            if newValue < s0.valueAsAddress {
                 onReturnStackOverflow()
             }
-            else if newValue > returnStack.count {
+            else if newValue > dataSpace.count {
                 onReturnStackUnderflow()
             }
         }
@@ -327,7 +328,40 @@ public final class ForthMachine {
 
     /// The number of cells currently on the return stack
     public var returnStackCellDepth: Int {
-        return (returnStack.count - rsp) / FCharsPerCell
+        return (dataSpace.count - rsp) / FCharsPerCell
+    }
+    
+    /// Data stack pointer (`%esp` in jonesforth.S)
+    ///
+    /// This is an index into `dataSpace`. The stack starts at the
+    /// top of the stack region and grows downward.
+    /// The initial value is equal to
+    /// `dataSpace.count - options.returnStackCharCount`.
+    /// To push a value onto the stack, the value of `sp` is decremented
+    /// and the pushed value is stored at `dataSpace[sp]`.  To pop a
+    /// value, `sp` is incremented.
+    ///
+    /// It is guaranteed that the value will always be in the range
+    /// 0...s0.valueAsAddress. Any attempt to set it outside this range
+    /// will cause the program to abort.
+    ///
+    /// Note that `s0.valueAsAddress` is considered to be a valid value
+    /// for `sp`, indicating an empty stack, but attempting to access
+    /// `stack[s0.valueAsAddress]` is not a valid operation.
+    var sp: FAddress {
+        willSet {
+            if newValue < 0 {
+                onStackOverflow()
+            }
+            else if newValue > s0.valueAsAddress {
+                onStackUnderflow()
+            }
+        }
+    }
+
+    /// The number of cells currently on the data stack
+    public var stackCellDepth: Int {
+        return (s0.valueAsAddress - sp) / FCharsPerCell
     }
 
     /// Instruction pointer (`%esi` in jonesforth.S)
@@ -375,7 +409,7 @@ public final class ForthMachine {
         machine: self,
         address: 8,
         size: FCharsPerCell,
-        initialValue: self.dataSpace.count |> asCell)
+        initialValue: (self.dataSpace.count - self.options.returnStackCharCount) |> asCell)
 
     /// FORTH variable "STATE" indicating whether interpreter is executing (false) or compiling (true)
     lazy var state: BuiltInVariable = BuiltInVariable(
@@ -422,15 +456,11 @@ public final class ForthMachine {
         self.isTraceEnabled = options.isTraceEnabled
 
         self.dataSpace = Array(
-            count:         options.dictionaryCharCount,
+            count:         options.dataSpaceCharCount,
             repeatedValue: 0)
 
-        self.sp = self.dataSpace.count
-
-        self.returnStack = Array(
-            count:         options.returnStackCharCount,
-            repeatedValue: 0)
-        self.rsp = self.returnStack.count
+        self.rsp = self.dataSpace.count
+        self.sp = self.dataSpace.count - options.returnStackCharCount
 
         self.ip = 0
 
@@ -575,22 +605,12 @@ public final class ForthMachine {
 
     // MARK: - Return stack manipulation
 
-    /// Return a pointer to the byte at a specified return stack address
-    func immutablePointerForReturnStackAddress(address: FAddress) -> UnsafePointer<FChar> {
-        return UnsafePointer<FChar>(returnStack) + address
-    }
-
-    /// Return a pointer to the byte at a specified return stack address
-    func mutablePointerForReturnStackAddress(address: FAddress) -> UnsafeMutablePointer<FChar> {
-        return UnsafeMutablePointer<FChar>(returnStack) + address
-    }
-
     /// Push a cell value onto the return stack
     public func pushReturn(x: FCell) {
         assert(rsp % FCharsPerCell == 0, "return stack pointer must be cell-aligned for pushReturn")
 
         rsp -= FCharsPerCell
-        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForReturnStackAddress(rsp))
+        let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(rsp))
         pointer.memory = x
     }
 
@@ -606,7 +626,7 @@ public final class ForthMachine {
         assert(rsp % FCharsPerCell == 0, "return stack pointer must be cell-aligned for pickReturn")
 
         let address = rsp + (depth * FCharsPerCell)
-        let pointer = UnsafePointer<FCell>(immutablePointerForReturnStackAddress(address))
+        let pointer = UnsafePointer<FCell>(immutablePointerForDataAddress(address))
         return pointer.memory
     }
 
@@ -636,7 +656,7 @@ public final class ForthMachine {
 
     /// Drop all items from the return stack
     func resetReturnStack() {
-        rsp = returnStack.count
+        rsp = dataSpace.count
     }
 
     
@@ -1991,7 +2011,7 @@ public final class ForthMachine {
     ///
     /// R0 ( -- addr )
     public func RZ() {
-        returnStack.count |> asCell |> push
+        dataSpace.count |> asCell |> push
     }
 
     /// Give the codeword for DOCOL
@@ -2324,7 +2344,7 @@ public final class ForthMachine {
     /// 
     /// UNUSED ( -- n )
     public func UNUSED() {
-        ((dataSpace.count - here.valueAsAddress) / FCharsPerCell) |> asCell |> push
+        ((s0.valueAsAddress - here.valueAsAddress) / FCharsPerCell) |> asCell |> push
     }
 
     // MARK: - Diagnostics
@@ -2390,8 +2410,8 @@ public final class ForthMachine {
             ip:           ip,
             sp:           sp,
             rsp:          rsp,
-            stack:        Array(dataSpace[sp..<dataSpace.count]),
-            returnStack:  Array(returnStack[rsp..<returnStack.count]),
+            stack:        Array(dataSpace[sp..<s0.valueAsAddress]),
+            returnStack:  Array(dataSpace[rsp..<dataSpace.count]),
             dictionary:   Array(dataSpace[0..<here.valueAsAddress]))
     }
 

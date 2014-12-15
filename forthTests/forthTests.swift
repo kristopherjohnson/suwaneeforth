@@ -71,7 +71,7 @@ class forthTests: XCTestCase {
         XCTAssert(s.latest > 0, "LATEST should be initialized")
         XCTAssertEqual(0, Int(s.state), "STATE should be 0 (interpreting)")
         XCTAssertEqual(10, Int(s.base), "BASE should be decimal")
-        XCTAssertEqual(s.options.returnStackCharCount, s.rsp, "rsp should be at top of return stack region")
+        XCTAssertEqual(s.options.dataSpaceCharCount, s.rsp, "rsp should be at top of data space")
         XCTAssertEqual(0, s.stack.count, "stack should be empty")
         XCTAssertEqual(0, s.returnStack.count, "return stack should be empty")
         XCTAssertEqual(s.here, s.dictionary.count, "snapshot should include region of dictionary up to HERE")
