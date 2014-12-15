@@ -159,7 +159,7 @@ let Char_A = FCell(UnicodeScalar("A").value)
 /// Any symbol with an all-caps name probably has a direct analogue in jonesforth.S
 /// or jonesforth.f.
 
-public class ForthMachine {
+public final class ForthMachine {
 
     // MARK: - Constants and type aliases
 
@@ -468,7 +468,7 @@ public class ForthMachine {
     // MARK: - Stack manipulation
 
     /// Push a cell value onto the data stack
-    public final func push(x: FCell) {
+    public func push(x: FCell) {
         assert(sp % FCharsPerCell == 0, "stack pointer must be cell-aligned for push")
 
         sp -= FCharsPerCell
@@ -484,7 +484,7 @@ public class ForthMachine {
     ///
     /// Results are indeterminate if the value of `depth` is not in the
     /// range `0..<stackCellDepth`.
-    public final func pick(depth: Int) -> FCell {
+    public func pick(depth: Int) -> FCell {
         assert(sp % FCharsPerCell == 0, "stack pointer must be cell-aligned for pick")
 
         let address = sp + (depth * FCharsPerCell)
@@ -493,68 +493,68 @@ public class ForthMachine {
     }
 
     /// Drop the specified number of values from the data stack
-    public final func dropCells(count: Int) {
+    public func dropCells(count: Int) {
         sp += count * FCharsPerCell
     }
 
     /// Pop a value from the data stack
-    public final func pop() -> FCell {
+    public func pop() -> FCell {
         let result = pick(0)
         dropCells(1)
         return result
     }
     
     /// Push two values onto the stack
-    public final func push(x1: FCell, _ x2: FCell) {
+    public func push(x1: FCell, _ x2: FCell) {
         push(x1); push(x2)
     }
 
     /// Push three values onto the stack
-    public final func push(x1: FCell, _ x2: FCell, _ x3: FCell) {
+    public func push(x1: FCell, _ x2: FCell, _ x3: FCell) {
         push(x1); push(x2); push(x3)
     }
 
     /// Push four values onto the stack
-    public final func push(x1: FCell, _ x2: FCell, _ x3: FCell, _ x4: FCell) {
+    public func push(x1: FCell, _ x2: FCell, _ x3: FCell, _ x4: FCell) {
         push(x1); push(x2); push(x3); push(x4)
     }
 
     /// Return the value that is at the top of the data stack
-    public final func top() -> FCell {
+    public func top() -> FCell {
         return pick(0)
     }
 
     /// Return top two values from the parameter stack
-    public final func top2() -> (FCell, FCell) {
+    public func top2() -> (FCell, FCell) {
         return (pick(1), pick(0))
     }
 
     /// Return top two values from the parameter stack
-    public final func top3() -> (FCell, FCell, FCell) {
+    public func top3() -> (FCell, FCell, FCell) {
         return (pick(2), pick(1), pick(0))
     }
 
     /// Return top two values from the parameter stack
-    public final func top4() -> (FCell, FCell, FCell, FCell) {
+    public func top4() -> (FCell, FCell, FCell, FCell) {
         return (pick(3), pick(2), pick(1), pick(0))
     }
 
     /// Pop two values from the parameter stack
-    public final func pop2() -> (FCell, FCell) {
+    public func pop2() -> (FCell, FCell) {
         let (x1, x2) = top2()
         dropCells(2)
         return (x1, x2)
     }
 
     /// Pop three values from the parameter stack
-    public final func pop3() -> (FCell, FCell, FCell) {
+    public func pop3() -> (FCell, FCell, FCell) {
         let (x1, x2, x3) = top3()
         dropCells(3)
         return (x1, x2, x3)
     }
 
     /// Pop four values from the parameter stack
-    public final func pop4() -> (FCell, FCell, FCell, FCell) {
+    public func pop4() -> (FCell, FCell, FCell, FCell) {
         let (x1, x2, x3, x4) = top4()
         dropCells(4)
         return (x1, x2, x3, x4)
@@ -576,17 +576,17 @@ public class ForthMachine {
     // MARK: - Return stack manipulation
 
     /// Return a pointer to the byte at a specified return stack address
-    final func immutablePointerForReturnStackAddress(address: FAddress) -> UnsafePointer<FChar> {
+    func immutablePointerForReturnStackAddress(address: FAddress) -> UnsafePointer<FChar> {
         return UnsafePointer<FChar>(returnStack) + address
     }
 
     /// Return a pointer to the byte at a specified return stack address
-    final func mutablePointerForReturnStackAddress(address: FAddress) -> UnsafeMutablePointer<FChar> {
+    func mutablePointerForReturnStackAddress(address: FAddress) -> UnsafeMutablePointer<FChar> {
         return UnsafeMutablePointer<FChar>(returnStack) + address
     }
 
     /// Push a cell value onto the return stack
-    public final func pushReturn(x: FCell) {
+    public func pushReturn(x: FCell) {
         assert(rsp % FCharsPerCell == 0, "return stack pointer must be cell-aligned for pushReturn")
 
         rsp -= FCharsPerCell
@@ -602,7 +602,7 @@ public class ForthMachine {
     ///
     /// Results are indeterminate if the value of `depth` is not in the
     /// range `0..<returnStackCellDepth`.
-    public final func pickReturn(depth: Int) -> FCell {
+    public func pickReturn(depth: Int) -> FCell {
         assert(rsp % FCharsPerCell == 0, "return stack pointer must be cell-aligned for pickReturn")
 
         let address = rsp + (depth * FCharsPerCell)
@@ -611,12 +611,12 @@ public class ForthMachine {
     }
 
     /// Drop the specified number of values from the return stack
-    public final func dropReturnCells(count: Int) {
+    public func dropReturnCells(count: Int) {
         rsp += count * FCharsPerCell
     }
 
     /// Pop a value from the return stack
-    public final func popReturn() -> FCell {
+    public func popReturn() -> FCell {
         let result = pickReturn(0)
         dropReturnCells(1)
         return result
@@ -635,7 +635,7 @@ public class ForthMachine {
     }
 
     /// Drop all items from the return stack
-    final func resetReturnStack() {
+    func resetReturnStack() {
         rsp = returnStack.count
     }
 
@@ -643,23 +643,23 @@ public class ForthMachine {
     // MARK: - Data-space operations
 
     /// Return a pointer to the byte at a specified data-space address
-    final func immutablePointerForDataAddress(address: FAddress) -> UnsafePointer<FChar> {
+    func immutablePointerForDataAddress(address: FAddress) -> UnsafePointer<FChar> {
         return UnsafePointer<FChar>(dataSpace) + address
     }
 
     /// Return a pointer to the byte at a specified data-space address
-    final func mutablePointerForDataAddress(address: FAddress) -> UnsafeMutablePointer<FChar> {
+    func mutablePointerForDataAddress(address: FAddress) -> UnsafeMutablePointer<FChar> {
         return UnsafeMutablePointer<FChar>(dataSpace) + address
     }
 
     /// Called on attempt to read from an invalid data-space address
-    final func onIllegalAddressFetch() {
+    func onIllegalAddressFetch() {
         assert(false, "attempt to read outside of data space")
         abortWithMessage("attempt to read outside of data space")
     }
 
     /// Called on attempt to write to an invalid data-space address
-    final func onIllegalAddressStore() {
+    func onIllegalAddressStore() {
         assert(false, "attempt to write outside of data space")
         abortWithMessage("attempt to write outside of data space")
     }
@@ -669,7 +669,7 @@ public class ForthMachine {
     /// This is public so that unit tests and debuggers can read the data
     /// space.  Applications should use the standard FORTH memory access
     /// words.
-    public final func cellAtAddress(address: FAddress) -> FCell {
+    public func cellAtAddress(address: FAddress) -> FCell {
         if (0 <= address) && (address <= dataSpace.count - FCharsPerCell) {
             // Reading a cell from an unaligned address will actually work fine,
             // but it is a violation of the rules and probably indicates a
@@ -694,7 +694,7 @@ public class ForthMachine {
     /// This is public so that unit tests and debuggers can read the data
     /// space.  Applications should use the standard FORTH memory access
     /// words.
-    final func charAtAddress(address: FAddress) -> FChar {
+    func charAtAddress(address: FAddress) -> FChar {
         if 0 <= address && address < dataSpace.count {
             let pointer = UnsafePointer<FChar>(immutablePointerForDataAddress(address))
             let cell = pointer.memory
@@ -707,7 +707,7 @@ public class ForthMachine {
     }
 
     /// Create a null-terminated array of CChar using the specified bytes
-    final func CStringAtAddress(address: FAddress, length: Int) -> [CChar] {
+    func CStringAtAddress(address: FAddress, length: Int) -> [CChar] {
         var result = Array<CChar>(count: length + 1, repeatedValue: 0)
         for i in 0..<length {
             result[i] = CChar(charAtAddress(address + i))
@@ -716,11 +716,11 @@ public class ForthMachine {
     }
 
     /// Convert a FORTH string to a Swift String
-    final func stringAtAddress(address: FAddress, length: Int) -> String? {
+    func stringAtAddress(address: FAddress, length: Int) -> String? {
         return String.fromCString(CStringAtAddress(address, length: length))
     }
 
-    final func storeToAddress(address: FAddress, cellValue: FCell) {
+    func storeToAddress(address: FAddress, cellValue: FCell) {
         if 0 <= address && address <= (dataSpace.count - 4) {
             let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(address))
             pointer.memory = cellValue
@@ -730,7 +730,7 @@ public class ForthMachine {
         }
     }
 
-    final func storeToAddress(address: FAddress, charValue: FChar) {
+    func storeToAddress(address: FAddress, charValue: FChar) {
         if 0 <= address && address < dataSpace.count {
             let pointer = UnsafeMutablePointer<FChar>(mutablePointerForDataAddress(address))
             pointer.memory = charValue
@@ -741,30 +741,30 @@ public class ForthMachine {
     }
 
     // Curried form of storeToAddress(, charValue:)
-    final func storeCharToAddress(address: FAddress)(char: FChar) {
+    func storeCharToAddress(address: FAddress)(char: FChar) {
         storeToAddress(address, charValue: char)
     }
 
     // Curried form of storeToAddress(, cellValue:)
-    final func storeCellToAddress(address: FAddress)(cell: FCell) {
+    func storeCellToAddress(address: FAddress)(cell: FCell) {
         storeToAddress(address, cellValue: cell)
     }
 
     /// Store a cell to HERE, and increment HERE by the size of a cell
-    final func addCellHere(cellValue: FCell) {
+    func addCellHere(cellValue: FCell) {
         storeToAddress(here.valueAsAddress, cellValue: cellValue)
         here.incrementBy(FCharsPerCell)
     }
 
     /// Store a cell to HERE, and increment HERE by the size of a cell
-    final func addCellHere(intValue: Int) {
+    func addCellHere(intValue: Int) {
         assert(intValue >= Int(FCell.min))
         assert(intValue <= Int(FCell.max))
         addCellHere(FCell(intValue))
     }
 
     /// Store a byte to HERE, and increment HERE by 1
-    final func addCharHere(charValue: FChar) {
+    func addCharHere(charValue: FChar) {
         storeToAddress(here.valueAsAddress, charValue: charValue)
         here.incrementBy(1)
     }
@@ -775,7 +775,7 @@ public class ForthMachine {
     /// by the characters of the name.
     ///
     /// If length is greater than 31, it will be truncated to 31
-    final func addLengthAndNameHere(nameAddress: FAddress, length: Int) {
+    func addLengthAndNameHere(nameAddress: FAddress, length: Int) {
         let validLength = min(length, MaxNameLength)
         addCharHere(FChar(validLength))
         for i in 0..<validLength {
@@ -790,7 +790,7 @@ public class ForthMachine {
     ///
     /// If the name's length is greater than 31, it will be truncated
     /// to 31 bytes.
-    final func addLengthAndNameHere(name: String, flags: FCell) {
+    func addLengthAndNameHere(name: String, flags: FCell) {
         let characters = Array(name.utf8)
         let validLength = min(characters.count, MaxNameLength)
         addCharHere(FChar(validLength) | FChar(flags))
@@ -800,17 +800,17 @@ public class ForthMachine {
     }
 
     /// Given an address, return address on a cell boundary
-    final func alignedCellAddress(address: FAddress) -> FAddress {
+    func alignedCellAddress(address: FAddress) -> FAddress {
         return (address + 3) & ~0x03
     }
 
     /// Determine whether a given address is aligned on a cell boundary
-    final func isCellAlignedAddress(address: FAddress) -> Bool {
+    func isCellAlignedAddress(address: FAddress) -> Bool {
         return (address % FCharsPerCell) == 0
     }
 
     /// Cell-align the address contained in the HERE variable
-    final func alignHere() {
+    func alignHere() {
         here.valueAsAddress = alignedCellAddress(here.valueAsAddress)
     }
 
@@ -871,7 +871,7 @@ public class ForthMachine {
     /// Creates a dictionary header with DOCOL as the codeword, then
     /// appends the code field addresses of the specified words.
     ///
-    /// In general, the final word in the definition should be "EXIT".
+    /// In general, the word in the definition should be "EXIT".
     func defword(name: String, _ words: [String], flags: FCell = 0) {
         defcode(name, .DOCOL, flags: flags)
         defwordContinue(words)
@@ -889,7 +889,7 @@ public class ForthMachine {
     }
 
     /// Move the instruction pointer to the next cell
-    final func advanceInstructionPointer() {
+    func advanceInstructionPointer() {
         //trace("advanceInstructionPointer from \(ip) to \(ip+FCharsPerCell)")
         ip += FCharsPerCell
     }
@@ -910,25 +910,25 @@ public class ForthMachine {
     // MARK: - Input/output and other system-level operations
 
     /// Low-level I/O function that reads a byte from the input stream.
-    final func readChar() -> FCell {
+    func readChar() -> FCell {
         return getchar()
     }
 
     /// Low-level I/O function that puts a byte back on the input stream
     ///
     /// The character will be returned by the next call to readChar().
-    final func unreadChar(c: FCell) {
+    func unreadChar(c: FCell) {
         ungetc(c, stdin)
     }
 
     /// Low-level I/O function that writes a byte to output stream
-    final func writeChar(c: FCell) {
+    func writeChar(c: FCell) {
         putchar(c)
         fflush(stdout)
     }
 
     /// Low-level I/O function that writes a byte to output stream
-    final func writeChar(c: FChar) {
+    func writeChar(c: FChar) {
         writeChar(FCell(c))
     }
 
@@ -956,7 +956,7 @@ public class ForthMachine {
     /// includes linefeeds, tabs, and other control characters.
     ///
     /// A backslash (\) character starts a comment that extends to the end of the line.
-    final func readWord() -> (FCell, FCell) {
+    func readWord() -> (FCell, FCell) {
 
         func skipBlanksAndComments() {
 
@@ -1016,7 +1016,7 @@ public class ForthMachine {
     /// Place a string in the WORD buffer, and push its address and length to the stack
     ///
     /// This method is used by unit tests to simulate reading of a word.
-    public final func setWord(s: String) {
+    public func setWord(s: String) {
         let chars: [FChar] = Array(s.utf8)
         assert(chars.count <= WordBufferLength)
         for i in 0..<chars.count {
@@ -1030,7 +1030,7 @@ public class ForthMachine {
     ///
     /// Returns the parsed number and count of unparsed characters.
     /// A count other than zero indicates failure.
-    final func numberAtAddress(address: FAddress, length: Int) -> (Int, Int) {
+    func numberAtAddress(address: FAddress, length: Int) -> (Int, Int) {
         // Empty string
         if length == 0 {
             return (0, 0)
@@ -1484,7 +1484,7 @@ public class ForthMachine {
     }
 
     /// Called by `execute()` for an undefined codeword value.
-    final func executeUndefinedCodeword(codeword: FCell) {
+    func executeUndefinedCodeword(codeword: FCell) {
         assert(false, "\(codeword) is not a valid codeword")
     }
 
@@ -1578,17 +1578,17 @@ public class ForthMachine {
     }
 
     /// Get the address of the code field (CFA) for the dictionary entry that starts at the specified address
-    public final func lengthAndFlagsFieldAddressForEntryAtAddress(entryAddress: FAddress) -> FAddress {
+    public func lengthAndFlagsFieldAddressForEntryAtAddress(entryAddress: FAddress) -> FAddress {
         return entryAddress + FCharsPerCell
     }
 
     /// Get the address of the code field (CFA) for the dictionary entry that starts at the specified address
-    public final func nameFieldAddressForEntryAtAddress(entryAddress: FAddress) -> FAddress {
+    public func nameFieldAddressForEntryAtAddress(entryAddress: FAddress) -> FAddress {
         return lengthAndFlagsFieldAddressForEntryAtAddress(entryAddress) + 1
     }
 
     /// Get the address of the code field (CFA) for the dictionary entry that starts at the specified address
-    public final func codeFieldAddressForEntryAtAddress(entryAddress: FAddress) -> FAddress {
+    public func codeFieldAddressForEntryAtAddress(entryAddress: FAddress) -> FAddress {
         let lengthAddress = lengthAndFlagsFieldAddressForEntryAtAddress(entryAddress)
         let nameAddress = lengthAddress + 1
 
@@ -1599,7 +1599,7 @@ public class ForthMachine {
         return codeFieldAddress
     }
 
-    public final func codeFieldAddressForEntryWithName(name: String) -> FAddress {
+    public func codeFieldAddressForEntryWithName(name: String) -> FAddress {
         let entryAddress = findEntryWithName(name)
         return entryAddress == 0 ? 0 : codeFieldAddressForEntryAtAddress(entryAddress)
     }
@@ -1609,14 +1609,14 @@ public class ForthMachine {
     /// Remove top cell from the stack
     /// 
     /// DROP ( x -- )
-    public final func DROP() {
+    public func DROP() {
         pop()
     }
 
     /// Exchange the top two cell pairs
     /// 
     /// SWAP ( x1 x2 -- x2 x1 )
-    public final func SWAP() {
+    public func SWAP() {
         let (x1, x2) = pop2()
         push(x2, x1)
     }
@@ -1624,21 +1624,21 @@ public class ForthMachine {
     /// Duplicate the cell on the top of the stack
     /// 
     /// DUP ( x -- x x )
-    public final func DUP() {
+    public func DUP() {
         top() |> push
     }
 
     /// Place a copy of `x1` on top of the stack
     ///
     /// OVER ( x1 x2 -- x1 x2 x1 )
-    public final func OVER() {
+    public func OVER() {
         pick(1) |> push
     }
 
     /// Rotate the top three stack entries
     ///
     /// ROT ( x1 x2 x3 -- x2 x3 x1 )
-    public final func ROT() {
+    public func ROT() {
         let (x1, x2, x3) = pop3()
         push(x2, x3, x1)
     }
@@ -1646,7 +1646,7 @@ public class ForthMachine {
     /// Rotate the top three stack entries in the opposite direction of ROT
     ///
     /// -ROT ( x1 x2 x3 -- x3 x1 x2 )
-    public final func NROT() {
+    public func NROT() {
         let (x1, x2, x3) = pop3()
         push(x3, x1, x2)
     }
@@ -1654,21 +1654,21 @@ public class ForthMachine {
     /// Remove the top two cells from the stack
     ///
     /// 2DROP ( x1 x2 -- )
-    public final func TWODROP() {
+    public func TWODROP() {
         dropCells(2)
     }
 
     /// Duplicate the cell pair on top of the stack
     ///
     /// 2DUP ( x1 x2 -- x1 x2 x1 x2 )
-    public final func TWODUP() {
+    public func TWODUP() {
         (pick(1), pick(0)) |> push
     }
 
     /// Exchange the top two cell pairs
     ///
     /// 2SWAP ( x1 x2 x3 x4 -- x3 x4 x1 x2 )
-    public final func TWOSWAP() {
+    public func TWOSWAP() {
         let (x1, x2, x3, x4) = pop4()
         push(x3, x4, x1, x2)
     }
@@ -1676,7 +1676,7 @@ public class ForthMachine {
     /// Duplicate the top-of-stack cell if it is non-zero
     ///
     /// ?DUP ( x -- 0 | x x )
-    public final func QDUP() {
+    public func QDUP() {
         let x = top()
         if x != 0 {
             push(x)
@@ -1686,7 +1686,7 @@ public class ForthMachine {
     /// Add one to the top-of-stack value
     ///
     /// 1+ ( n1|u1 -- n2|u2 )
-    public final func INCR() {
+    public func INCR() {
         let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = pointer.memory &+ 1
     }
@@ -1694,7 +1694,7 @@ public class ForthMachine {
     /// Subtract one from the top-of-stack value
     ///
     /// 1- ( n1|u1 -- n2|u2 )
-    public final func DECR() {
+    public func DECR() {
         let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = pointer.memory &- 1
     }
@@ -1702,7 +1702,7 @@ public class ForthMachine {
     /// Add four to the top-of-stack value
     ///
     /// 4+ ( n1|u1 -- n2|u2 )
-    public final func INCR4() {
+    public func INCR4() {
         let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = pointer.memory &+ 4
     }
@@ -1710,7 +1710,7 @@ public class ForthMachine {
     /// Subtract four from the top-of-stack value
     ///
     /// 4- ( n1|u1 -- n2|u2 )
-    public final func DECR4() {
+    public func DECR4() {
         let pointer = UnsafeMutablePointer<FCell>(mutablePointerForDataAddress(sp))
         pointer.memory = pointer.memory &- 4
     }
@@ -1718,7 +1718,7 @@ public class ForthMachine {
     /// Add the two values at the top of the stack, giving the sum
     ///
     /// + ( n1|u1 n2|u2 -- n3|u3 )
-    public final func ADD() {
+    public func ADD() {
         let (n1, n2) = pop2()
         (n1 &+ n2) |> push
     }
@@ -1726,7 +1726,7 @@ public class ForthMachine {
     /// Subtract the top-of-stack value from the next stack value, giving the difference
     ///
     /// - ( n1|u1 n2|u2 -- n3|u3 )
-    public final func SUB() {
+    public func SUB() {
         let (n1, n2) = pop2()
         (n1 &- n2) |> push
     }
@@ -1734,7 +1734,7 @@ public class ForthMachine {
     /// Multiply the two values at the top of the stack, giving the product
     ///
     /// * ( n1|u1 n2|u2 -- n3|u3 )
-    public final func MUL() {
+    public func MUL() {
         let (n1, n2) = pop2()
         (n1 &* n2) |> push
     }
@@ -1742,7 +1742,7 @@ public class ForthMachine {
     /// Divide dividend by divisor, giving the remainder and quotent
     ///
     /// /MOD ( n1 n2 -- n3 n4 )
-    public final func DIVMOD() {
+    public func DIVMOD() {
         let (n1, n2) = pop2()
         let result = div(n1, n2)
         (result.rem, result.quot) |> push
@@ -1751,7 +1751,7 @@ public class ForthMachine {
     /// Compare two cells at top of stack, giving true if and only if they are equal, or false otherwise
     ///
     /// = ( x1 x2 -- flag )
-    public final func EQU() {
+    public func EQU() {
         let (x1, x2) = pop2()
         (x1 == x2) |> asForthFlag |> push
     }
@@ -1759,7 +1759,7 @@ public class ForthMachine {
     /// Compare two cells at top of stack, giving true if and only if they are not equal, or false otherwise
     ///
     /// <> ( x1 x2 -- flag )
-    public final func NEQU() {
+    public func NEQU() {
         let (x1, x2) = pop2()
         (x1 != x2) |> asForthFlag |> push
     }
@@ -1767,7 +1767,7 @@ public class ForthMachine {
     /// Compare two cells at top of stack, giving true if and only if x1 < x2, or false otherwise
     ///
     /// < ( x1 x2 -- flag )
-    public final func LT() {
+    public func LT() {
         let (x1, x2) = pop2()
         (x1 < x2) |> asForthFlag |> push
     }
@@ -1775,7 +1775,7 @@ public class ForthMachine {
     /// Compare two cells at top of stack, giving true if and only if x1 > x2, or false otherwise
     ///
     /// > ( x1 x2 -- flag )
-    public final func GT() {
+    public func GT() {
         let (x1, x2) = pop2()
         (x1 > x2) |> asForthFlag |> push
     }
@@ -1783,7 +1783,7 @@ public class ForthMachine {
     /// Compare two cells at top of stack, giving true if and only if x1 <= x2, or false otherwise
     ///
     /// <= ( x1 x2 -- flag )
-    public final func LE() {
+    public func LE() {
         let (x1, x2) = pop2()
         (x1 <= x2) |> asForthFlag |> push
     }
@@ -1791,7 +1791,7 @@ public class ForthMachine {
     /// Compare two cells at top of stack, giving true if and only if x1 <= x2, or false otherwise
     ///
     /// >= ( x1 x2 -- flag )
-    public final func GE() {
+    public func GE() {
         let (x1, x2) = pop2()
         (x1 >= x2) |> asForthFlag |> push
     }
@@ -1799,49 +1799,49 @@ public class ForthMachine {
     /// Give true if and only if the top-of-stack is zero, or false otherwise
     ///
     /// 0= ( x -- flag )
-    public final func ZEQU() {
+    public func ZEQU() {
         (pop() == 0) |> asForthFlag |> push
     }
 
     /// Give true if and only if the top-of-stack is non-zero, or false otherwise
     ///
     /// 0<> ( x -- flag )
-    public final func ZNEQU() {
+    public func ZNEQU() {
         (pop() != 0) |> asForthFlag |> push
     }
 
     /// Give true if and only if the top-of-stack is less than zero, or false otherwise
     ///
     /// 0< ( x -- flag )
-    public final func ZLT() {
+    public func ZLT() {
         (pop() < 0) |> asForthFlag |> push
     }
 
     /// Give true if and only if the top-of-stack is greater than zero, or false otherwise
     ///
     /// 0> ( x -- flag )
-    public final func ZGT() {
+    public func ZGT() {
         (pop() > 0) |> asForthFlag |> push
     }
 
     /// Give true if and only if the top-of-stack is less than or equal to zero, or false otherwise
     ///
     /// 0<= ( x -- flag )
-    public final func ZLE() {
+    public func ZLE() {
         (pop() <= 0) |> asForthFlag |> push
     }
 
     /// Give true if and only if the top-of-stack is greater than or equal to zero, or false otherwise
     ///
     /// 0>= ( x -- flag )
-    public final func ZGE() {
+    public func ZGE() {
         (pop() >= 0) |> asForthFlag |> push
     }
 
     /// Bitwise logical AND of the two cells on top of the stack
     ///
     /// AND ( x1 x2 -- x3 )
-    public final func AND() {
+    public func AND() {
         let (x1, x2) = pop2()
         (x1 & x2) |> push
     }
@@ -1849,7 +1849,7 @@ public class ForthMachine {
     /// Bitwise logical OR of the two cells on top of the stack
     ///
     /// OR ( x1 x2 -- x3 )
-    public final func OR() {
+    public func OR() {
         let (x1, x2) = pop2()
         (x1 | x2) |> push
     }
@@ -1857,7 +1857,7 @@ public class ForthMachine {
     /// Bitwise logical exclusive-OR of the two cells on top of the stack
     ///
     /// XOR ( x1 x2 -- x3 )
-    public final func XOR() {
+    public func XOR() {
         let (x1, x2) = pop2()
         (x1 ^ x2) |> push
     }
@@ -1865,14 +1865,14 @@ public class ForthMachine {
     /// Invert all bits of the top-of-stack cell
     ///
     /// INVERT ( x1 -- x2 )
-    public final func INVERT() {
+    public func INVERT() {
         (~pop()) |> push
     }
 
     /// Get the literal value that follows this instruction
     ///
     /// LIT ( -- x )
-    public final func LIT() {
+    public func LIT() {
         cellAtAddress(ip) |> push
         advanceInstructionPointer()
     }
@@ -1880,7 +1880,7 @@ public class ForthMachine {
     /// Store value at address
     ///
     /// ! ( x a-addr -- )
-    public final func STORE() {
+    public func STORE() {
         let (x, a) = pop2()
         x |> storeCellToAddress(FAddress(a))
     }
@@ -1888,14 +1888,14 @@ public class ForthMachine {
     /// Fetch value from address
     ///
     /// @ ( a-addr -- x )
-    public final func FETCH() {
+    public func FETCH() {
         pop() |> asAddress |> cellAtAddress |> push
     }
 
     /// Add value to value at address
     ///
     /// +! ( n|u a-addr -- )
-    public final func ADDSTORE() {
+    public func ADDSTORE() {
         let (n, a) = pop2()
         let addr = a |> asAddress
         addr |> cellAtAddress |> { $0 &+ n } |> storeCellToAddress(addr)
@@ -1904,7 +1904,7 @@ public class ForthMachine {
     /// Subtract value from value at address
     ///
     /// -! ( n|u a-addr -- )
-    public final func SUBSTORE() {
+    public func SUBSTORE() {
         let (n, a) = pop2()
         let addr = a |> asAddress
         addr |> cellAtAddress |> { $0 &- n } |> storeCellToAddress(addr)
@@ -1913,7 +1913,7 @@ public class ForthMachine {
     /// Store char at address
     ///
     /// C! ( char c-addr -- )
-    public final func STOREBYTE() {
+    public func STOREBYTE() {
         let (c, a) = pop2()
         c |> asChar |> storeCharToAddress(FAddress(a))
     }
@@ -1921,14 +1921,14 @@ public class ForthMachine {
     /// Fetch char from address
     ///
     /// C@ ( c-addr -- char )
-    public final func FETCHBYTE() {
+    public func FETCHBYTE() {
         pop() |> asAddress |> charAtAddress |> asCell |> push
     }
 
     /// Copy character from source address to destination address and increment addresses
     //
     /// C@C! ( c-addr1 c-addr2 -- c-addr3 c-addr4 )
-    public final func CCOPY() {
+    public func CCOPY() {
         let (source, dest) = pop2()
         charAtAddress(FAddress(source)) |> storeCharToAddress(FAddress(dest))
         push(source + 1, dest + 1)
@@ -1937,7 +1937,7 @@ public class ForthMachine {
     /// Copy chars from one address to another
     ///
     /// CMOVE ( c-addr1 c-addr2 u -- )
-    public final func CMOVE() {
+    public func CMOVE() {
         let (source, dest, count) = pop3()
 
         // We're supposed to treat the count as an unsigned value, but
@@ -1959,7 +1959,7 @@ public class ForthMachine {
     /// Give address of cell containing compilation state (false = interpreting; true = compiling)
     ///
     /// STATE ( -- a-addr)
-    public final func STATE() {
+    public func STATE() {
         state.address |> asCell |> push
     }
 
@@ -1968,35 +1968,35 @@ public class ForthMachine {
     /// Note: This differs from ANS FORTH, where HERE returns the data-space pointer value.
     ///
     /// HERE ( -- a-addr )
-    public final func HERE() {
+    public func HERE() {
         here.address |> asCell |> push
     }
 
     /// Give address of cell containing the address of the most recently defined dictionary word
     ///
     /// LATEST ( -- a-addr )
-    public final func LATEST() {
+    public func LATEST() {
         latest.address |> asCell |> push
     }
 
     /// Give address of cell containing the address of the initial value of the parameter stack pointer
     ///
     /// S0 ( -- a-addr )
-    public final func SZ() {
+    public func SZ() {
         s0.address |> asCell |> push
     }
 
     /// Give address of cell containing the current numeric base
     ///
     /// BASE ( -- a-addr )
-    public final func BASE() {
+    public func BASE() {
         base.address |> asCell |> push
     }
 
     /// Give current version of this FORTH
     ///
     /// VERSION ( -- n )
-    public final func VERSION() {
+    public func VERSION() {
         JONES_VERSION |> asCell |> push
     }
 
@@ -2006,91 +2006,91 @@ public class ForthMachine {
     /// Otherwise, this value is not useful.
     ///
     /// R0 ( -- addr )
-    public final func RZ() {
+    public func RZ() {
         returnStack.count |> asCell |> push
     }
 
     /// Give the codeword for DOCOL
     ///
     /// DOCOL ( -- x )
-    public final func __DOCOL() {
+    public func __DOCOL() {
         Primitive.DOCOL.rawValue |> asCell |> push
     }
 
     /// Give the bitmask for the IMMEDIATE flag of the flags/len field
     ///
     /// F_IMMED ( -- x )
-    public final func __F_IMMED() {
+    public func __F_IMMED() {
         push(F_IMMED)
     }
 
     /// Give the bitmask for the HIDDEN flag of the flags/len field
     ///
     /// F_HIDDEN ( -- x )
-    public final func __F_HIDDEN() {
+    public func __F_HIDDEN() {
         push(F_HIDDEN)
     }
 
     /// Give the bitmask for the length portion of the flags/len field
     ///
     /// F_LENMASK ( -- x )
-    public final func __F_LENMASK() {
+    public func __F_LENMASK() {
         push(F_LENMASK)
     }
 
     /// Move value from parameter stack to return stack
     ///
     /// >R ( x -- ) ( R: -- x )
-    public final func TOR() {
+    public func TOR() {
         pop() |> pushReturn
     }
 
     /// Move value from return stack to parameter stack
     ///
     /// R> ( R: x -- ) ( -- x )
-    public final func FROMR() {
+    public func FROMR() {
         popReturn() |> push
     }
 
     /// Get the value of the return stack pointer
     ///
     /// RSP@ ( -- addr )
-    public final func RSPFETCH() {
+    public func RSPFETCH() {
         rsp |> asCell |> push
     }
 
     /// Set the value of the return stack pointer
     ///
     /// RSP! ( addr -- )
-    public final func RSPSTORE() {
+    public func RSPSTORE() {
         rsp = pop() |> asAddress
     }
 
     /// Drop value from the return stack
     ///
     /// RDROP ( R: x -- )
-    public final func RDROP() {
+    public func RDROP() {
         rsp--
     }
 
     /// Get value of parameter stack pointer
     /// 
     /// DSPFETCH ( -- addr )
-    public final func DSPFETCH() {
+    public func DSPFETCH() {
         sp |> asCell |> push
     }
 
     /// Set value of parameter stack pointer
     ///
     /// DSPSTORE ( addr -- )
-    public final func DSPSTORE() {
+    public func DSPSTORE() {
         sp = pop() |> asAddress
     }
 
     /// Receive one character from input stream
     ///
     /// KEY ( -- char )
-    public final func KEY() {
+    public func KEY() {
         let c = readChar()
         if c == EOF {
             onKeyEOF()
@@ -2103,7 +2103,7 @@ public class ForthMachine {
     /// Send character to output stream
     ///
     /// EMIT ( x -- )
-    public final func EMIT() {
+    public func EMIT() {
         pop() |> writeChar
     }
 
@@ -2117,14 +2117,14 @@ public class ForthMachine {
     /// definition of WORD.
     ///
     /// WORD ( -- c-addr u )
-    public final func WORD() {
+    public func WORD() {
         readWord() |> push
     }
 
     /// Parse a numeric string, giving the number and count of unparsed characters
     ///
     /// ( c-addr u -- n u )
-    public final func NUMBER() {
+    public func NUMBER() {
         let (addr, length) = pop2() |> asAddressAndCount
 
         let (number, unparsedCount) = numberAtAddress(addr, length: length)
@@ -2135,21 +2135,21 @@ public class ForthMachine {
     /// Look up a word in the dictionary, giving address of its dictionary entry or 0 if not found
     ///
     /// FIND ( c-addr u -- a-addr|0 )
-    public final func FIND() {
+    public func FIND() {
         pop2() |> asAddressAndCount |> find |> asCell |> push
     }
 
     /// Given pointer to dictionary entry, give the address of the code field
     ///
     /// >CFA ( a-addr -- a-addr )
-    public final func TCFA() {
+    public func TCFA() {
         pop() |> asAddress |> codeFieldAddressForEntryAtAddress |> asCell |> push
     }
 
     /// Given a name, create a new dictionary entry header
     ///
     /// CREATE ( c-addr u -- )
-    public final func CREATE() {
+    public func CREATE() {
         let (addr, length) = pop2() |> asAddressAndCount
         trace("CREATE: \(stringAtAddress(addr, length: length)!)")
         createEntryForNameAtAddress(addr, length: length)
@@ -2158,26 +2158,26 @@ public class ForthMachine {
     /// Append cell to dictionary
     ///
     /// , ( x -- )
-    public final func COMMA() {
+    public func COMMA() {
         pop() |> addCellHere
     }
 
     /// Set interpreter state to "interpreting"
     ///
     /// [ ( -- )
-    public final func LBRAC() {
+    public func LBRAC() {
         state.value = FFalse
     }
 
     /// Set interpreter state to "compiling"
     ///
     /// ] ( -- )
-    public final func RBRAC() {
+    public func RBRAC() {
         state.value = FTrue
     }
 
     /// Make the most recent definition an immediate word
-    public final func IMMEDIATE() {
+    public func IMMEDIATE() {
         let entryAddress = latest.valueAsAddress
         let lengthFlagsAddress = entryAddress + FCharsPerCell
 
@@ -2188,7 +2188,7 @@ public class ForthMachine {
     /// Toggle the hidden flag of a dictionary entry
     ///
     /// HIDDEN ( a-addr -- )
-    public final func HIDDEN() {
+    public func HIDDEN() {
         let entryAddress = FAddress(pop())
         let lengthFlagsAddress = entryAddress + FCharsPerCell
 
@@ -2199,7 +2199,7 @@ public class ForthMachine {
     /// Find name and return its execution token
     ///
     /// ' ( "<spaces>name" -- xt )
-    public final func TICK() {
+    public func TICK() {
         // See the description of TICK in jonesforth.S for an description
         // of the trick that lets us implement it like this, rather
         // than defining an IMMEDIATE word that uses WORD FIND >CFA.
@@ -2213,7 +2213,7 @@ public class ForthMachine {
     /// Add offset to instruction pointer
     ///
     /// BRANCH ( -- )
-    public final func BRANCH() {
+    public func BRANCH() {
         let offset = cellAtAddress(ip) |> asAddress
         ip += offset
     }
@@ -2221,7 +2221,7 @@ public class ForthMachine {
     /// Branch if top of stack is zero
     ///
     /// 0BRANCH ( x -- )
-    public final func ZBRANCH() {
+    public func ZBRANCH() {
         if pop() == 0 {
             BRANCH()
         }
@@ -2234,7 +2234,7 @@ public class ForthMachine {
     /// Primitive word used to implement ." and S"
     ///
     /// LITSTRING ( -- c-addr u )
-    public final func LITSTRING() {
+    public func LITSTRING() {
         let length = cellAtAddress(ip)
         advanceInstructionPointer()
 
@@ -2249,7 +2249,7 @@ public class ForthMachine {
     /// Note that this word is named "TYPE" in ANS Forth
     ///
     /// TELL ( c-addr u -- )
-    public final func TELL() {
+    public func TELL() {
         let (addr, length) = pop2() |> asAddressAndCount
         for i in 0..<length {
             charAtAddress(addr + i) |> writeChar
@@ -2259,7 +2259,7 @@ public class ForthMachine {
     /// Read word from input stream and execute it
     ///
     /// INTERPRET ( i**x -- j**x )
-    public final func INTERPRET() {
+    public func INTERPRET() {
         WORD()
 
         // Grab these values before FIND() consumes them
@@ -2346,14 +2346,18 @@ public class ForthMachine {
     // MARK: - Diagnostics
 
     /// Set this true to enable trace() functionality
-    let isTraceEnabled = false
+    var isTraceEnabled = false
 
     /// Write a debug trace message if trace messages are enabled
     ///
     /// This is controlled by the `isTraceEnabled` property
-    final func trace(message: @autoclosure () -> String) {
+    func trace(message: @autoclosure () -> String) {
         if isTraceEnabled {
-            fputs("[\(message())]\n", stderr)
+            var prefix = ""
+            for i in 0..<returnStackCellDepth {
+                prefix.extend(" ")
+            }
+            fputs("[\(prefix)\(message())]\n", stderr)
             fflush(stderr)
         }
     }
@@ -2365,7 +2369,7 @@ public class ForthMachine {
     var _nameForOpcode: [Int : String] = Dictionary()
 
     /// Return human-readable name for opcode
-    final func nameForOpcode(opcode: Int) -> String {
+    func nameForOpcode(opcode: Int) -> String {
         if opcode == Primitive.DOCOL.rawValue {
             return "DOCOL"
         }
@@ -2375,7 +2379,7 @@ public class ForthMachine {
     }
 
     /// Return name of the dictionary entry with specified code field address
-    final func nameForCodeFieldAddress(codeFieldAddress: FAddress) -> String {
+    func nameForCodeFieldAddress(codeFieldAddress: FAddress) -> String {
         // Walk back through linked list, returning the address of the first
         // entry whose address is less than the code field address
         var link = latest.valueAsAddress
@@ -2392,7 +2396,7 @@ public class ForthMachine {
     ///
     /// This is intended for unit testing and debugging.
     /// It should not be used to circumvent the public API.
-    public final func snapshot() -> Snapshot {
+    public func snapshot() -> Snapshot {
         return Snapshot(
             options:      options,
             here:         here.valueAsAddress,
