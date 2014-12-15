@@ -267,13 +267,15 @@ public final class ForthMachine {
     ///
     ///     +--------------+  <- R0
     ///     |              |
-    ///     | RETURN STACK |  <- rsp
+    ///     | RETURN STACK |
     ///     |              |
+    ///     +--------------+  <- rsp (top of return stack)
+    ///     |   RESERVED   |
     ///     +--------------+  <- S0
     ///     |              |
     ///     |  DATA STACK  |
     ///     |              |
-    ///     +--------------+  <- sp
+    ///     +--------------+  <- sp (top of data stack)
     ///     |              |
     ///     |  FREE SPACE  |
     ///     |              |
@@ -285,19 +287,22 @@ public final class ForthMachine {
     ///
     /// At the top of dataSpace is space reserved for the return stack.
     /// R0 refers to the top of this space.  The return stack pointer (rsp)
-    /// points to the top-of-return-stack cell.
+    /// points to the top-of-return-stack cell, and moves downward when
+    /// cells are pushed onto the return stack and moves up when cells are
+    /// popped.
     ///
     /// Under the return-stack space is the data stack. S0 refers to the top
     /// of this area (the boundary between return stack and data stack space).
-    /// The data stack grows downward.  The data stack pointer (sp) points
-    /// to the top-of-stack cell.
+    /// Like the return stack, the data stack grows downward.  The data stack
+    /// pointer (sp) points to the top-of-stack cell.
     ///
     /// The dictionary starts at the bottom of memory and grows upward.
     /// HERE points at the current top of the dictionary space.
     ///
     /// Between HERE and sp is space that is not used.  As definitions are
     /// added to the dictionary, HERE will increase and the size of this
-    /// unused space decreases.
+    /// unused space decreases.  Note that if sp and HERE collide, then
+    /// data corruption could occur.
     var dataSpace: [FChar]
 
     /// Return stack pointer (`%ebp` in jonesforth.S)
@@ -312,9 +317,9 @@ public final class ForthMachine {
     /// 0...returnStack.count. Any attempt to set it outside this range
     /// will cause the program to abort.
     ///
-    /// Note that `returnStack.count` is considered to be a valid value
+    /// Note that `dataSpace.count` is considered to be a valid value
     /// for `rsp`, indicating an empty stack, but attempting to access
-    /// `returnStack.count[returnStack.count]` is not a valid operation.
+    /// `dataSpace[dataSpace.count]` is not a valid operation.
     var rsp: FAddress {
         willSet {
             if newValue < s0.valueAsAddress {
@@ -345,12 +350,18 @@ public final class ForthMachine {
     /// 0...s0.valueAsAddress. Any attempt to set it outside this range
     /// will cause the program to abort.
     ///
+    /// An attempt to set the value below HERE will cause the program
+    /// to abort.  However, note that it is common for FORTH code to
+    /// temporarily use space above HERE, so a collision between the
+    /// data stack and space used by an application could happen without
+    /// a stack overflow being detected this way.
+    ///
     /// Note that `s0.valueAsAddress` is considered to be a valid value
     /// for `sp`, indicating an empty stack, but attempting to access
-    /// `stack[s0.valueAsAddress]` is not a valid operation.
+    /// `stack[s0.valueAsAddress]` as a stack value is not a valid operation.
     var sp: FAddress {
         willSet {
-            if newValue < 0 {
+            if newValue < 0 || newValue < here.valueAsAddress {
                 onStackOverflow()
             }
             else if newValue > s0.valueAsAddress {
@@ -411,35 +422,32 @@ public final class ForthMachine {
         size: FCharsPerCell,
         initialValue: (self.dataSpace.count - self.options.returnStackCharCount) |> asCell)
 
-    /// FORTH variable "STATE" indicating whether interpreter is executing (false) or compiling (true)
+    /// FORTH variable `STATE` indicating whether interpreter is executing (false) or compiling (true)
     lazy var state: BuiltInVariable = BuiltInVariable(
         machine: self,
         address: self.s0.address + self.s0.size,
         size: FCharsPerCell)
 
-    /// FORTH variable "BASE" containing current base for printing and reading numbers
+    /// FORTH variable `BASE` containing current base for printing and reading numbers
     lazy var base: BuiltInVariable = BuiltInVariable(
         machine: self,
         address: self.state.address + self.state.size,
         size: FCharsPerCell,
         initialValue: 10)
 
-    /// FORTH variable "LATEST" containing address of most-recently-defined word
+    /// FORTH variable `LATEST` containing address of the dictionary entry of the most-recently-defined word
     lazy var latest: BuiltInVariable = BuiltInVariable(
         machine: self,
         address: self.base.address + self.base.size,
         size: FCharsPerCell)
 
-    /// Region used by the FORTH word WORD to store its parsed string
-    ///
-    /// TODO: Instead of using this buffer, consider letting WORD store
-    /// a temporary value at HERE like other FORTH implementations do.
+    /// Region used by the FORTH word `WORD` to store its parsed string
     lazy var wordBuffer: BuiltInVariable = BuiltInVariable(
         machine: self,
         address: self.latest.address + self.latest.size,
         size: self.WordBufferLength)
 
-    /// FORTH variable "HERE" indicating current size of dictionary
+    /// FORTH variable `HERE` indicating current size of dictionary
     lazy var here: BuiltInVariable = BuiltInVariable(
         machine: self,
         address: self.wordBuffer.address + self.WordBufferLength,
@@ -466,7 +474,7 @@ public final class ForthMachine {
 
         defineBuiltInWords()
 
-        // Cache the code field address for the LIT primitive for use by the compiler
+        // Cache the code field address for the LIT primitive
         LIT_codeFieldAddress = codeFieldAddressForEntryWithName("LIT")
         if LIT_codeFieldAddress == 0 {
             abortWithMessage("unable to find LIT in dictionary")
