@@ -443,10 +443,27 @@ public class ForthMachine {
         }
     }
 
+    /// Start virtual machine processing loop
     public func run() {
-        // Execute QUIT
-        codeFieldAddressForEntryWithName("QUIT") |> executeCodeFieldAddress
+        // Initialize instruction pointer to the first instruction of QUIT
+        self.ip = codeFieldAddressForEntryWithName("QUIT") + FCharsPerCell
+
+        while true {
+            next()
+        }
     }
+
+    /// Execute the instruction at the instruction pointer, and advance instruction pointer
+    ///
+    /// This performs a similar function to the NEXT macro in JONESFORTH.
+    public func next() {
+        let addressAtIP = cellAtAddress(ip) |> asAddress
+        let codeword = cellAtAddress(addressAtIP)
+
+        advanceInstructionPointer()
+        executeCodeWord(codeword, codeFieldAddress: addressAtIP)
+    }
+
 
     // MARK: - Stack manipulation
 
@@ -1476,27 +1493,12 @@ public class ForthMachine {
     /// Pushes the current instruction pointer value to the return stack,
     /// then sets the instruction pointer to point to the cell following the
     /// one that refers to the DOCOL codeword.
-    ///
-    /// Execute instructions until EXIT
     func DOCOL(codeFieldAddress: FAddress) {
         trace("DOCOL: \(nameForCodeFieldAddress(codeFieldAddress)); return=\(ip)")
 
         pushReturn(FCell(ip))
 
         ip = codeFieldAddress + FCharsPerCell
-
-        var exit = false
-        while !exit {
-            let addressAtIP = cellAtAddress(ip) |> asAddress
-            let codeword = cellAtAddress(addressAtIP)
-
-            advanceInstructionPointer()
-            executeCodeWord(codeword, codeFieldAddress: addressAtIP)
-
-            if codeword == FCell(Primitive.EXIT.rawValue) {
-                exit = true
-            }
-        }
     }
 
     /// Return control to the calling definition

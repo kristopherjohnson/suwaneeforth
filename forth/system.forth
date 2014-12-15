@@ -1479,9 +1479,9 @@
 
 : WELCOME
 	S" TEST-MODE" FIND NOT IF
-		." SUWANEEFORTH" CR
-		UNUSED . ." CELLS REMAINING" CR
-		." OK "
+		." SuwaneeForth" CR
+		UNUSED . ." cells remaining" CR
+		." ok "
 	THEN
 ;
 
