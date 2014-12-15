@@ -104,7 +104,7 @@ let FFalse: FCell = 0
 
 
 /// ASCII code for space character
-let Char_Blank = FCell(UnicodeScalar(" ").value)
+let Char_Space = FCell(UnicodeScalar(" ").value)
 
 /// ASCII code for linefeed character ("\n")
 let Char_Newline = FCell(UnicodeScalar("\n").value)
@@ -914,13 +914,6 @@ public final class ForthMachine {
         return getchar()
     }
 
-    /// Low-level I/O function that puts a byte back on the input stream
-    ///
-    /// The character will be returned by the next call to readChar().
-    func unreadChar(c: FCell) {
-        ungetc(c, stdin)
-    }
-
     /// Low-level I/O function that writes a byte to output stream
     func writeChar(c: FCell) {
         putchar(c)
@@ -958,48 +951,36 @@ public final class ForthMachine {
     /// A backslash (\) character starts a comment that extends to the end of the line.
     func readWord() -> (FCell, FCell) {
 
-        func skipBlanksAndComments() {
+        var ch = self.readChar()
 
-            func skipToEndOfLine() {
-                var ch = self.readChar()
-                while ch != EOF && ch != FCell(Char_Newline) {
-                    ch = self.readChar()
+        var skipping = true
+        while skipping {
+            if (ch == EOF) {
+                onWordEOF()
+                return (0, 0)
+            }
+            else if ch == Char_Backslash {
+                // skip to end of line
+                ch = readChar()
+                while ch != EOF && ch != Char_Newline {
+                    ch = readChar()
                 }
-
                 if ch == EOF {
                     onWordEOF()
+                    return (0, 0)
                 }
             }
-
-            var done = false
-            var ch = readChar()
-            while !done {
-                if ch == FCell(Char_Backslash) {
-                    // start of comment
-                    skipToEndOfLine()
-                    ch = readChar()
-                }
-                else if ch <= FCell(Char_Blank) {
-                    // next character
-                    ch = readChar()
-                }
-                else {
-                    done = true
-                }
+            else if ch <= Char_Space {
+                ch = readChar()
             }
-            unreadChar(ch)
+            else {
+                skipping = false
+            }
         }
-
-        skipBlanksAndComments()
 
         let buffer = wordBuffer.address
         var count = 0
-        var ch = readChar()
-        if ch == EOF {
-            onWordEOF()
-            return (0, 0)
-        }
-        while ch != EOF && ch > FCell(Char_Blank) {
+        while ch != EOF && ch > Char_Space {
             if count == WordBufferLength {
                 abortWithMessage("WORD buffer overflow")
             }
@@ -1058,7 +1039,6 @@ public final class ForthMachine {
         while !unparseable && i < length {
             number = number * numericBase
             let c = charAtAddress(address + i) |> asCell
-            ++i
             if Char_0 <= c && c <= Char_9 {
                 let val = Int(c - Char_0)
                 if val < numericBase {
@@ -1079,6 +1059,10 @@ public final class ForthMachine {
             }
             else {
                 unparseable = true
+            }
+
+            if !unparseable {
+                ++i
             }
         }
 
