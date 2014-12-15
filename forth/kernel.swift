@@ -491,13 +491,12 @@ public final class ForthMachine {
         }
     }
 
-    /// Execute the instruction at the instruction pointer, and advance instruction pointer
+    /// Execute the instruction at the instruction pointer, advancing the instruction pointer
     ///
     /// This performs a similar function to the NEXT macro in JONESFORTH.
     public func next() {
         let addressAtIP = cellAtAddress(ip) |> asAddress
         let codeword = cellAtAddress(addressAtIP)
-
         advanceInstructionPointer()
         executeCodeWord(codeword, codeFieldAddress: addressAtIP)
     }
@@ -1573,7 +1572,7 @@ public final class ForthMachine {
             }
 
             // Go to next link
-            link = FAddress(cellAtAddress(link))
+            link = cellAtAddress(link) |> asAddress
         }
         
         return 0
@@ -1605,7 +1604,7 @@ public final class ForthMachine {
         let nameAddress = lengthAddress + 1
 
         let length = FCell(charAtAddress(lengthAddress)) & F_LENMASK
-        let endOfNameAddress = FAddress(nameAddress + length)
+        let endOfNameAddress = (nameAddress + length) |> asAddress
         let codeFieldAddress = alignedCellAddress(endOfNameAddress)
 
         return codeFieldAddress
@@ -1894,7 +1893,7 @@ public final class ForthMachine {
     /// ! ( x a-addr -- )
     public func STORE() {
         let (x, a) = pop2()
-        x |> storeCellToAddress(FAddress(a))
+        x |> storeCellToAddress(a |> asAddress)
     }
 
     /// Fetch value from address
@@ -1910,7 +1909,8 @@ public final class ForthMachine {
     public func ADDSTORE() {
         let (n, a) = pop2()
         let addr = a |> asAddress
-        addr |> cellAtAddress |> { $0 &+ n } |> storeCellToAddress(addr)
+        let newValue = (addr |> cellAtAddress) &+ n
+        newValue |> storeCellToAddress(addr)
     }
 
     /// Subtract value from value at address
@@ -1919,7 +1919,8 @@ public final class ForthMachine {
     public func SUBSTORE() {
         let (n, a) = pop2()
         let addr = a |> asAddress
-        addr |> cellAtAddress |> { $0 &- n } |> storeCellToAddress(addr)
+        let newValue = (addr |> cellAtAddress) &- n
+        newValue |> storeCellToAddress(addr)
     }
 
     /// Store char at address
@@ -1927,7 +1928,8 @@ public final class ForthMachine {
     /// C! ( char c-addr -- )
     public func STOREBYTE() {
         let (c, a) = pop2()
-        c |> asChar |> storeCharToAddress(FAddress(a))
+        let addr = a |> asAddress
+        c |> asChar |> storeCharToAddress(addr)
     }
 
     /// Fetch char from address
@@ -1955,12 +1957,12 @@ public final class ForthMachine {
         // We're supposed to treat the count as an unsigned value, but
         // rather than mess with that, let's just assume the value
         // works as a positive signed integer.
-        // (We should never have a data-space big enough to allow
+        // (We should never have a data space big enough to allow
         // a CMOVE count that overflows an Int.)
         assert(count >= 0, "count must not be negative")
 
-        let sourceAddr = FAddress(source)
-        let destAddr = FAddress(dest)
+        let sourceAddr = source |> asAddress
+        let destAddr = dest |> asAddress
         let n = Int(count)
 
         for i in 0..<n {
@@ -2201,7 +2203,7 @@ public final class ForthMachine {
     ///
     /// HIDDEN ( a-addr -- )
     public func HIDDEN() {
-        let entryAddress = FAddress(pop())
+        let entryAddress = pop() |> asAddress
         let lengthFlagsAddress = entryAddress + FCharsPerCell
 
         (charAtAddress(lengthFlagsAddress) ^ FChar(F_HIDDEN))
@@ -2298,7 +2300,7 @@ public final class ForthMachine {
         }
         else {
             // Not in the dictionary (not a word) so it must be a numeric literal
-            let (number, unparsed) = numberAtAddress(FAddress(wordAddress), length: Int(wordLength))
+            let (number, unparsed) = numberAtAddress(wordAddress, length: wordLength)
             if unparsed == 0 {
                 if state.value == 0 {
                     // Execute
@@ -2308,13 +2310,13 @@ public final class ForthMachine {
                 else {
                     // Compiling
                     //trace("INTERPRET: compile numeric literal \(number)")
-                    FCell(LIT_codeFieldAddress) |> addCellHere
+                    LIT_codeFieldAddress |> asCell |> addCellHere
                     number |> addCellHere
                 }
             }
             else {
                 if wordLength > 0 {
-                    if let wordAsString = stringAtAddress(FAddress(wordAddress), length: Int(wordLength)) {
+                    if let wordAsString = stringAtAddress(wordAddress, length: wordLength) {
                         abortWithMessage("INTERPRET: parse error for word \"\(wordAsString)\"")
                     }
                     else {
