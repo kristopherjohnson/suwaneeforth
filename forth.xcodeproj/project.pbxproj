@@ -249,9 +249,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				4E4D0E7E1A39434200D79A41 /* suwaneeforth */,
 				4EBAC1A81A2DD85B00A1AA56 /* forth */,
 				4EBAC1B31A2DD85B00A1AA56 /* forthTests */,
-				4E4D0E7E1A39434200D79A41 /* suwaneeforth */,
 			);
 		};
 /* End PBXProject section */

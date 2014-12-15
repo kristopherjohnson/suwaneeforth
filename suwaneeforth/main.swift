@@ -19,4 +19,4 @@ import Foundation
 //
 // TODO: command-line arguments, configuration, etc.
 
-ForthMachine().QUIT()
+ForthMachine().run()

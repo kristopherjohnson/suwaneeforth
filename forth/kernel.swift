@@ -443,6 +443,10 @@ public class ForthMachine {
         }
     }
 
+    public func run() {
+        // Execute QUIT
+        codeFieldAddressForEntryWithName("QUIT") |> executeCodeFieldAddress
+    }
 
     // MARK: - Stack manipulation
 
@@ -1176,7 +1180,6 @@ public class ForthMachine {
         case ZBRANCH
         case LITSTRING
         case TELL
-        case QUIT
         case INTERPRET
         case CHAR
         case EXECUTE
@@ -1299,7 +1302,6 @@ public class ForthMachine {
             case .ZBRANCH:      ZBRANCH()
             case .LITSTRING:    LITSTRING()
             case .TELL:         TELL()
-            case .QUIT:         QUIT()
             case .INTERPRET:    INTERPRET()
             case .CHAR:         CHAR()
             case .EXECUTE:      EXECUTE()
@@ -1408,7 +1410,6 @@ public class ForthMachine {
         defcode("0BRANCH",    .ZBRANCH)
         defcode("LITSTRING",  .LITSTRING)
         defcode("TELL",       .TELL)
-        defcode("QUIT",       .QUIT)
         defcode("INTERPRET",  .INTERPRET)
         defcode("CHAR",       .CHAR)
         defcode("EXECUTE",    .EXECUTE)
@@ -1416,6 +1417,7 @@ public class ForthMachine {
         defcode("BYE",        .BYE)
         defcode("UNUSED",     .UNUSED)
 
+        // Start a definition
         defword(":", [
             "WORD",
             "CREATE",
@@ -1429,6 +1431,7 @@ public class ForthMachine {
             "EXIT"
         ])
 
+        // End a definition
         defword(";", [
             "LIT", "EXIT", ",",
             "LATEST", "@", "HIDDEN",
@@ -1436,15 +1439,31 @@ public class ForthMachine {
             "EXIT"
         ], flags: F_IMMED)
 
+        // Given address of dictionary entry, give address of data field
+        //
+        // >DFA ( a-addr1 -- a-addr2 )
         defword(">DFA", [
             ">CFA", "4+",
             "EXIT"
         ])
 
+        // Toggle the F_HIDDEN bit of specified word
+        //
+        // HIDE ( "<spaces>name" -- )
         defword("HIDE", [
             "WORD", "FIND", "HIDDEN",
             "EXIT"
         ])
+
+        // Clear the return stack and enter interpretation loop
+        //
+        // QUIT ( -- )
+        defword("QUIT", [
+            "R0", "RSP!",
+            "INTERPRET",
+            "BRANCH"
+        ])
+        (-8) |> addCellHere  // BRANCH argument, jumps back to INTERPRET
     }
 
     /// Called by `execute()` for an undefined codeword value.
@@ -2235,25 +2254,6 @@ public class ForthMachine {
         }
     }
 
-    /// Empty return stack, enter interpretation state, and process input
-    ///
-    /// Note that QUIT is a colon-defined-word in JONESFORTH, but we define
-    /// it as a primitive because we need to call INTERPRET to kick off
-    /// the instruction-execution process.
-    ///
-    /// If an application calls QUIT, that will be a recursive call to
-    /// this method, leaving whatever is on Swift's return stack.  This
-    /// could lead to a stack overflow if QUIT is called often enough.
-    /// TODO: Figure out how to fix this, maybe with setjmp/longjmp.
-    ///
-    /// QUIT ( -- )
-    public func QUIT() {
-        resetReturnStack()
-        while true {
-            INTERPRET()
-        }
-    }
-
     /// Read word from input stream and execute it
     ///
     /// INTERPRET ( i**x -- j**x )
@@ -2336,9 +2336,9 @@ public class ForthMachine {
 
     /// Give number of unused cells.
     /// 
-    /// UNUSED ( -- u )
+    /// UNUSED ( -- n )
     public func UNUSED() {
-        (dataSpace.count - here.valueAsAddress) / FCharsPerCell |> asCell |> push
+        ((dataSpace.count - here.valueAsAddress) / FCharsPerCell) |> asCell |> push
     }
 
     // MARK: - Diagnostics
