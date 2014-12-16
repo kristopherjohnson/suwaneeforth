@@ -13,18 +13,15 @@ import forth
 
 // Generic equality operators for tuples of Equatable types
 
-func == <A : Equatable, B : Equatable>(lhs: (A, B), rhs: (A, B)) -> Bool
-{
+func == <A : Equatable, B : Equatable>(lhs: (A, B), rhs: (A, B)) -> Bool {
     return (lhs.0 == rhs.0) && (lhs.1 == rhs.1)
 }
 
-func == <A : Equatable, B : Equatable, C : Equatable>(lhs: (A, B, C), rhs: (A, B, C)) -> Bool
-{
+func == <A : Equatable, B : Equatable, C : Equatable>(lhs: (A, B, C), rhs: (A, B, C)) -> Bool {
     return (lhs.0 == rhs.0) && (lhs.1 == rhs.1) && (lhs.2 == rhs.2)
 }
 
-func == <A : Equatable, B : Equatable, C : Equatable, D : Equatable>(lhs: (A, B, C, D), rhs: (A, B, C, D)) -> Bool
-{
+func == <A : Equatable, B : Equatable, C : Equatable, D : Equatable>(lhs: (A, B, C, D), rhs: (A, B, C, D)) -> Bool {
     return (lhs.0 == rhs.0) && (lhs.1 == rhs.1) && (lhs.2 == rhs.2) && (lhs.3 == rhs.3)
 }
 
@@ -32,18 +29,15 @@ func == <A : Equatable, B : Equatable, C : Equatable, D : Equatable>(lhs: (A, B,
 // Equality operators for tuples of Ints and Cells
 // (so we don't need to cast every numeric literal to Cell in our unit tests)
 
-func == (lhs: (Int, Int), rhs: (FCell, FCell)) -> Bool
-{
+func == (lhs: (Int, Int), rhs: (FCell, FCell)) -> Bool {
     return (FCell(lhs.0), FCell(lhs.1)) == rhs
 }
 
-func == (lhs: (Int, Int, Int), rhs: (FCell, FCell, FCell)) -> Bool
-{
+func == (lhs: (Int, Int, Int), rhs: (FCell, FCell, FCell)) -> Bool {
     return (FCell(lhs.0), FCell(lhs.1), FCell(lhs.2)) == rhs
 }
 
-func == (lhs: (Int, Int, Int, Int), rhs: (FCell, FCell, FCell, FCell)) -> Bool
-{
+func == (lhs: (Int, Int, Int, Int), rhs: (FCell, FCell, FCell, FCell)) -> Bool {
     return (FCell(lhs.0), FCell(lhs.1), FCell(lhs.2), FCell(lhs.3)) == rhs
 }
 
