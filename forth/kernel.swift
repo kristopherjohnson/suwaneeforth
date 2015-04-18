@@ -1566,7 +1566,7 @@ public final class ForthMachine {
             let lengthFieldValue = charAtAddress(lengthFieldAddress) |> asCell
             if lengthFieldValue & (F_HIDDEN | F_LENMASK) == FCell(length) {
                 let namePointer = immutablePointerForDataAddress(nameFieldAddress)
-                if memcmp(chars, namePointer, UInt(length)) == 0 {
+                if memcmp(chars, namePointer, length) == 0 {
                     return link
                 }
             }
@@ -2365,7 +2365,7 @@ public final class ForthMachine {
     /// Write a debug trace message if trace messages are enabled
     ///
     /// This is controlled by the `isTraceEnabled` property
-    func trace(message: @autoclosure () -> String) {
+    func trace(@autoclosure message: () -> String) {
         if isTraceEnabled {
             var prefix = ""
             for i in 0..<returnStackCellDepth {
