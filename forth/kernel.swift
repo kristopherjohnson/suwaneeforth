@@ -1093,6 +1093,10 @@ public final class ForthMachine {
             }
         }
 
+        if isNegative {
+            number = -number
+        }
+
         return (number, length - i)
     }
     
@@ -2334,7 +2338,7 @@ public final class ForthMachine {
     ///
     /// CHAR ( "<spaces>name" -- char )
     public func CHAR() {
-        let (wordAddress, wordLength) = readWord() |> asAddressAndCount
+        let (wordAddress, _) = readWord() |> asAddressAndCount
         wordAddress |> charAtAddress |> asCell |> push
     }
 
@@ -2368,7 +2372,7 @@ public final class ForthMachine {
     func trace(@autoclosure message: () -> String) {
         if isTraceEnabled {
             var prefix = ""
-            for i in 0..<returnStackCellDepth {
+            for _ in 0..<returnStackCellDepth {
                 prefix.extend(" ")
             }
             fputs("[\(prefix)\(message())]\n", stderr)

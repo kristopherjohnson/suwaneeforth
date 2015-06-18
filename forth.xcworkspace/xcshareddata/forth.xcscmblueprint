@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "4799F7C3FBE2CC90E03757EDD3384E1EE4E7E272",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "4799F7C3FBE2CC90E03757EDD3384E1EE4E7E272" : 0,
+    "62DF536BD5C3EB833DC463D006A42FDC93AF231B" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "0A82003A-0068-4EAE-AEE5-0FC09596B8E8",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "4799F7C3FBE2CC90E03757EDD3384E1EE4E7E272" : "forth",
+    "62DF536BD5C3EB833DC463D006A42FDC93AF231B" : "forth\/jonesforth"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "forth",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 203,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "forth.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/kristopherjohnson\/suwaneeforth.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "4799F7C3FBE2CC90E03757EDD3384E1EE4E7E272"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/kristopherjohnson\/jonesforth.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "62DF536BD5C3EB833DC463D006A42FDC93AF231B"
+    }
+  ]
+}
