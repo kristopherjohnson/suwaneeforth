@@ -2373,7 +2373,7 @@ public final class ForthMachine {
         if isTraceEnabled {
             var prefix = ""
             for _ in 0..<returnStackCellDepth {
-                prefix.extend(" ")
+                prefix = prefix + " "
             }
             fputs("[\(prefix)\(message())]\n", stderr)
             fflush(stderr)
